@@ -229,32 +229,20 @@ return;
 // MENU TICKET
 // ==========================
 
-
 if(interaction.isStringSelectMenu()){
 
 
-
 if(interaction.customId === "ticket_menu"){
-
 
 
 const escolha = interaction.values[0];
 
 
 
-// reseta o menu primeiro
-
-await interaction.deferUpdate();
-
-
-
-
-// abre ticket
-
 if(escolha === "recrutamento"){
 
 
-await tickets.criarTicket(
+return tickets.criarTicket(
 
 interaction,
 
@@ -266,16 +254,10 @@ interaction,
 }
 
 
-
-
-return;
-
-
 }
 
 
 }
-
 
 
 
