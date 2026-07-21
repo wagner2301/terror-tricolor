@@ -8,7 +8,9 @@ ButtonStyle
 } = require("discord.js");
 
 
+
 const cargosStaff = [
+
 
 "1493905534376742974",
 "1493905535492427836",
@@ -17,7 +19,9 @@ const cargosStaff = [
 "1493905541699997726",
 "1493905547626287197"
 
+
 ];
+
 
 
 
@@ -27,8 +31,55 @@ module.exports = {
 async criarTicket(interaction, motivo){
 
 
+
 const guild = interaction.guild;
 
+
+
+// ==========================
+// IMPEDIR TICKET DUPLICADO
+// ==========================
+
+
+const ticketExistente = guild.channels.cache.find(
+
+canal =>
+
+canal.name.includes(
+
+`recrutamento-${interaction.user.username}`
+
+)
+
+);
+
+
+
+if(ticketExistente){
+
+
+return interaction.reply({
+
+content:
+
+`❌ Você já possui um ticket aberto!\n\n🎫 Seu ticket atual: ${ticketExistente}`,
+
+ephemeral:true
+
+});
+
+
+}
+
+
+
+
+
+
+
+// ==========================
+// CRIAR CANAL
+// ==========================
 
 
 const canal = await guild.channels.create({
@@ -73,7 +124,9 @@ PermissionFlagsBits.ReadMessageHistory
 
 ...cargosStaff.map(id=>({
 
+
 id:id,
+
 
 allow:[
 
@@ -82,6 +135,7 @@ PermissionFlagsBits.SendMessages,
 PermissionFlagsBits.ReadMessageHistory
 
 ]
+
 
 }))
 
@@ -96,14 +150,24 @@ PermissionFlagsBits.ReadMessageHistory
 
 
 
+
+
+// ==========================
+// EMBED DO TICKET
+// ==========================
+
+
 const embed = new EmbedBuilder()
 
+
 .setColor("#E30613")
+
 
 .setTitle("🔴🔵⚪ Terror Tricolor | Recrutamento")
 
 
 .setDescription(
+
 
 `Olá ${interaction.user}, seja bem-vindo(a)!
 
@@ -135,11 +199,14 @@ Aguarde um membro da equipe de recrutamento.`
 )
 
 
+
 .setFooter({
 
 text:"Terror Tricolor • Sistema de Recrutamento"
 
 });
+
+
 
 
 
@@ -180,6 +247,7 @@ new ButtonBuilder()
 
 
 
+
 await canal.send({
 
 content:
@@ -191,7 +259,6 @@ embeds:[embed],
 components:[botoes]
 
 });
-
 
 
 
