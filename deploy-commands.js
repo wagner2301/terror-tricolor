@@ -1,47 +1,68 @@
-const { REST, Routes } = require("discord.js");
+const { REST, Routes, SlashCommandBuilder } = require("discord.js");
 require("dotenv").config();
 
+
 const commands = [
-  {
-    name: "painel",
-    description: "Abrir painel de tickets do Terror Tricolor"
-  }
+
+new SlashCommandBuilder()
+
+.setName("painel")
+
+.setDescription("Abrir painel de recrutamento")
+
+.toJSON()
+
 ];
 
 
-const rest = new REST({ version: "10" })
+
+const rest = new REST({version:"10"})
+
 .setToken(process.env.TOKEN);
 
 
-(async () => {
 
-try {
+(async()=>{
 
-console.log("Registrando comando...");
+
+try{
+
+
+console.log("🔄 Registrando comandos...");
+
 
 
 await rest.put(
 
 Routes.applicationGuildCommands(
+
 process.env.CLIENT_ID,
+
 process.env.GUILD_ID
+
 ),
 
 {
+
 body: commands
+
 }
 
 );
 
 
-console.log("✅ Comando /painel registrado!");
 
-}
+console.log("✅ /painel registrado com sucesso!");
 
-catch(error){
+
+
+}catch(error){
+
 
 console.error(error);
 
+
 }
+
 
 })();
