@@ -1,6 +1,16 @@
-const { Client, GatewayIntentBits, Collection } = require("discord.js");
+const { 
+    Client, 
+    GatewayIntentBits, 
+    Collection 
+} = require("discord.js");
+
 const express = require("express");
 require("dotenv").config();
+
+
+// =======================
+// SERVIDOR PARA O RENDER
+// =======================
 
 const app = express();
 
@@ -13,37 +23,56 @@ app.listen(process.env.PORT || 3000, () => {
 });
 
 
+// =======================
+// BOT DISCORD
+// =======================
+
 const client = new Client({
+
     intents: [
+
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.MessageContent
+
     ]
+
 });
 
 
 client.commands = new Collection();
 
 
-// carregar sistema de tickets
+// sistema tickets
 const tickets = require("./systems/tickets");
 
 
-// quando bot ligar
-client.once("ready", async () => {
+
+// =======================
+// BOT ONLINE
+// =======================
+
+client.once("ready", () => {
 
     console.log(`✅ Terror Tricolor#${client.user.tag} online!`);
 
 });
 
 
-// comandos e botões
+
+// =======================
+// INTERAÇÕES
+// =======================
+
 client.on("interactionCreate", async interaction => {
 
 
-    if (interaction.isChatInputCommand()) {
+    // COMANDO /painel
 
-        if (interaction.commandName === "painel") {
+    if(interaction.isChatInputCommand()){
+
+
+        if(interaction.commandName === "painel"){
 
             const painel = require("./painel");
 
@@ -55,18 +84,23 @@ client.on("interactionCreate", async interaction => {
 
 
 
-    if (interaction.isButton()) {
+    // BOTÕES
+
+    if(interaction.isButton()){
 
 
-        if (
+        // criar ticket
+
+        if(
             interaction.customId === "recrutamento" ||
             interaction.customId === "suporte" ||
             interaction.customId === "denuncia" ||
             interaction.customId === "duvidas"
-        ) {
+        ){
 
 
-            let motivo = "";
+            let motivo;
+
 
 
             if(interaction.customId === "recrutamento")
@@ -87,32 +121,68 @@ client.on("interactionCreate", async interaction => {
 
 
             await tickets.criarTicket(
+
                 interaction,
+
                 motivo
+
             );
 
-        }
-
-
-
-        if(interaction.customId === "fechar"){
-
-            await interaction.channel.delete();
 
         }
 
+
+
+        // ======================
+        // ASSUMIR TICKET
+        // ======================
 
 
         if(interaction.customId === "assumir"){
 
 
             await interaction.reply({
-                content:"🛠️ Ticket assumido!",
+
+                content:
+                `🛠️ **Ticket assumido por ${interaction.user}!**\n\n` +
+                `O atendente irá cuidar deste atendimento.`,
+
                 ephemeral:false
+
             });
 
 
         }
+
+
+
+        // ======================
+        // FECHAR TICKET
+        // ======================
+
+
+        if(interaction.customId === "fechar"){
+
+
+            await interaction.reply({
+
+                content:
+                "❌ Fechando ticket...",
+
+                ephemeral:false
+
+            });
+
+
+            setTimeout(()=>{
+
+                interaction.channel.delete();
+
+            },3000);
+
+
+        }
+
 
     }
 
@@ -120,5 +190,9 @@ client.on("interactionCreate", async interaction => {
 });
 
 
+
+// =======================
+// LOGIN
+// =======================
 
 client.login(process.env.TOKEN);
