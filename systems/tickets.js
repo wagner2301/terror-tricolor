@@ -27,7 +27,6 @@ module.exports = {
 async criarTicket(interaction, motivo){
 
 
-
 const guild = interaction.guild;
 
 
@@ -86,6 +85,7 @@ PermissionFlagsBits.ReadMessageHistory
 
 }))
 
+
 ]
 
 
@@ -96,12 +96,9 @@ PermissionFlagsBits.ReadMessageHistory
 
 
 
-
 const embed = new EmbedBuilder()
 
-
 .setColor("#E30613")
-
 
 .setTitle("🔴🔵⚪ Terror Tricolor | Recrutamento")
 
@@ -109,7 +106,6 @@ const embed = new EmbedBuilder()
 .setDescription(
 
 `Olá ${interaction.user}, seja bem-vindo(a)!
-
 
 Seu atendimento de recrutamento foi aberto.
 
@@ -139,7 +135,6 @@ Aguarde um membro da equipe de recrutamento.`
 )
 
 
-
 .setFooter({
 
 text:"Terror Tricolor • Sistema de Recrutamento"
@@ -150,10 +145,7 @@ text:"Terror Tricolor • Sistema de Recrutamento"
 
 
 
-
-
 const botoes = new ActionRowBuilder()
-
 
 .addComponents(
 
@@ -188,24 +180,17 @@ new ButtonBuilder()
 
 
 
-
-
 await canal.send({
-
 
 content:
 
 `${interaction.user} ${cargosStaff.map(id=>`<@&${id}>`).join(" ")}`,
 
-
 embeds:[embed],
-
 
 components:[botoes]
 
-
 });
-
 
 
 
@@ -223,7 +208,6 @@ ephemeral:true
 
 
 }
-
 
 
 };
