@@ -1,105 +1,117 @@
-const {
-Client,
-GatewayIntentBits,
-Collection,
-REST,
-Routes
-} = require("discord.js");
-
-const express = require("express");
-const fs = require("fs");
-require("dotenv").config();
-
-
-
 // ==========================
-// SERVIDOR RENDER
+// BOTÕES DO TICKET
 // ==========================
 
-const app = express();
-
-
-app.get("/", (req,res)=>{
-
-res.send("🔴🔵⚪ Terror Tricolor online!");
-
-});
-
-
-app.listen(process.env.PORT || 3000, ()=>{
-
-console.log("🌐 Servidor web iniciado!");
-
-});
+if(interaction.isButton()){
 
 
 
+const cargosPermitidos = [
 
-// ==========================
-// CLIENT DISCORD
-// ==========================
+"1493905534376742974",
+"1493905535492427836",
+"1528241558204317788",
+"1493905538566590524",
+"1493905541699997726",
+"1493905547626287197"
 
-
-const client = new Client({
-
-intents:[
-
-GatewayIntentBits.Guilds,
-GatewayIntentBits.GuildMessages,
-GatewayIntentBits.MessageContent
-
-]
-
-});
+];
 
 
 
-client.commands = new Collection();
+const autorizado = interaction.member.roles.cache.some(
 
-
-
-
-// ==========================
-// CARREGAR COMANDOS
-// ==========================
-
-
-const commands = [];
-
-
-const commandFiles = fs.readdirSync("./commands")
-.filter(file => file.endsWith(".js"));
-
-
-
-for(const file of commandFiles){
-
-
-const command = require(`./commands/${file}`);
-
-
-
-client.commands.set(
-
-command.data.name,
-
-command
+role => cargosPermitidos.includes(role.id)
 
 );
 
 
 
-commands.push(
 
-command.data.toJSON()
+
+// ==========================
+// ASSUMIR TICKET
+// ==========================
+
+
+if(interaction.customId === "assumir"){
+
+
+
+if(!autorizado){
+
+return interaction.reply({
+
+content:"❌ Você não tem permissão para assumir tickets.",
+
+ephemeral:true
+
+});
+
+}
+
+
+
+const mensagem = await interaction.channel.messages.fetch({
+
+limit:10
+
+});
+
+
+
+const msgBot = mensagem.find(
+
+m => m.author.id === interaction.client.user.id && m.embeds.length
 
 );
 
 
 
-console.log(
-`✅ Comando carregado: ${command.data.name}`
+if(msgBot){
+
+
+const embed = EmbedBuilder.from(
+
+msgBot.embeds[0]
+
 );
+
+
+
+let descricao = embed.data.description;
+
+
+
+descricao = descricao.replace(
+
+"Ticket não assumido.",
+
+`${interaction.user}`
+
+);
+
+
+
+descricao = descricao.replace(
+
+"Aguardando atendimento.",
+
+"🟢 Em atendimento."
+
+);
+
+
+
+embed.setDescription(descricao);
+
+
+
+await msgBot.edit({
+
+embeds:[embed]
+
+});
 
 
 }
@@ -108,124 +120,11 @@ console.log(
 
 
 
+await interaction.reply({
 
-// ==========================
-// SISTEMA TICKETS
-// ==========================
-
-
-const tickets = require("./systems/tickets");
-
-
-
-
-
-
-
-// ==========================
-// BOT ONLINE
-// ==========================
-
-
-client.once("clientReady", async()=>{
-
-
-console.log(
-
-`✅ Terror Tricolor#${client.user.tag} online!`
-
-);
-
-
-
-// Registrar comandos automaticamente
-
-
-const rest = new REST({
-
-version:"10"
-
-}).setToken(process.env.TOKEN);
-
-
-
-try{
-
-
-console.log("🔄 Registrando comandos...");
-
-
-
-await rest.put(
-
-Routes.applicationGuildCommands(
-
-process.env.CLIENT_ID,
-
-process.env.GUILD_ID
-
-),
-
-{
-
-body:commands
-
-}
-
-);
-
-
-
-console.log("✅ Comandos registrados!");
-
-
-
-}catch(error){
-
-console.log(error);
-
-}
-
-
+content:`🛠️ Ticket assumido por ${interaction.user}`
 
 });
-
-
-
-
-
-
-// ==========================
-// INTERAÇÕES
-// ==========================
-
-
-client.on("interactionCreate", async(interaction)=>{
-
-
-try{
-
-
-
-// COMANDO SLASH
-
-
-if(interaction.isChatInputCommand()){
-
-
-const command = client.commands.get(
-
-interaction.commandName
-
-);
-
-
-
-if(!command) return;
-
-
-
-await command.execute(interaction);
 
 
 return;
@@ -238,86 +137,20 @@ return;
 
 
 
-// MENU TICKET
+// ==========================
+// FECHAR TICKET
+// ==========================
 
 
-if(interaction.isStringSelectMenu()){
+if(interaction.customId === "fechar"){
 
-
-
-if(interaction.customId === "ticket_menu"){
-
-
-const escolha = interaction.values[0];
-
-
-
-if(escolha === "recrutamento"){
-
-
-return tickets.criarTicket(
-
-interaction,
-
-"Recrutamento TUTT"
-
-);
-
-
-}
-
-
-}
-
-
-
-}
-
-
-
-
-
-// BOTÕES
-
-
-if(interaction.isButton()){
-
-
-
-const cargosPermitidos=[
-
-
-"1493905534376742974",
-"1493905535492427836",
-"1528241558204317788",
-"1493905538566590524",
-"1493905541699997726",
-"1493905547626287197"
-
-
-];
-
-
-
-const autorizado =
-interaction.member.roles.cache.some(
-
-role=>cargosPermitidos.includes(role.id)
-
-);
-
-
-
-
-
-if(interaction.customId==="assumir"){
 
 
 if(!autorizado){
 
 return interaction.reply({
 
-content:"❌ Sem permissão.",
+content:"❌ Você não tem permissão para fechar tickets.",
 
 ephemeral:true
 
@@ -327,28 +160,43 @@ ephemeral:true
 
 
 
+const confirmar = new ActionRowBuilder()
+
+.addComponents(
+
+
+new ButtonBuilder()
+
+.setCustomId("confirmar_fechar")
+
+.setLabel("Confirmar fechamento")
+
+.setEmoji("✅")
+
+.setStyle(ButtonStyle.Danger),
+
+
+
+new ButtonBuilder()
+
+.setCustomId("cancelar_fechar")
+
+.setLabel("Cancelar")
+
+.setEmoji("❌")
+
+.setStyle(ButtonStyle.Secondary)
+
+
+);
+
+
+
 return interaction.reply({
 
-content:`🛠️ Ticket assumido por ${interaction.user}`
+content:"🔒 Tem certeza que deseja fechar este ticket?",
 
-});
-
-
-}
-
-
-
-
-
-if(interaction.customId==="fechar"){
-
-
-
-if(!autorizado){
-
-return interaction.reply({
-
-content:"❌ Sem permissão.",
+components:[confirmar],
 
 ephemeral:true
 
@@ -358,16 +206,32 @@ ephemeral:true
 
 
 
-await interaction.reply({
 
-content:"🔒 Ticket fechado. Apagando..."
+
+// ==========================
+// CONFIRMAR FECHAMENTO
+// ==========================
+
+
+if(interaction.customId === "confirmar_fechar"){
+
+
+
+await interaction.update({
+
+content:`🔒 Ticket fechado por ${interaction.user}. Apagando canal...`,
+
+components:[]
 
 });
+
 
 
 setTimeout(()=>{
 
+
 interaction.channel.delete().catch(()=>{});
+
 
 },5000);
 
@@ -376,24 +240,29 @@ interaction.channel.delete().catch(()=>{});
 
 
 
-}
 
 
 
-}catch(error){
-
-console.log(error);
-
-
-}
+// ==========================
+// CANCELAR FECHAMENTO
+// ==========================
 
 
+if(interaction.customId === "cancelar_fechar"){
+
+
+
+return interaction.update({
+
+content:"❌ Fechamento cancelado.",
+
+components:[]
 
 });
 
 
+}
 
 
 
-
-client.login(process.env.TOKEN);
+}
