@@ -1,7 +1,8 @@
-const {
-    Client,
-    GatewayIntentBits,
-    Collection
+const { 
+Client, 
+GatewayIntentBits, 
+Collection, 
+EmbedBuilder 
 } = require("discord.js");
 
 const express = require("express");
@@ -10,34 +11,35 @@ require("dotenv").config();
 const app = express();
 
 
-// ===============================
-// SERVIDOR PARA RENDER
-// ===============================
+// WEB SERVICE RENDER
 
-app.get("/", (req, res) => {
-    res.send("🔴🔵⚪ Terror Tricolor online!");
+app.get("/", (req,res)=>{
+
+res.send("🔴🔵⚪ Terror Tricolor online!");
+
 });
 
 
-app.listen(process.env.PORT || 3000, () => {
-    console.log("🌐 Servidor web iniciado!");
+app.listen(process.env.PORT || 3000, ()=>{
+
+console.log("🌐 Servidor web iniciado!");
+
 });
 
 
 
-// ===============================
+
 // CLIENT DISCORD
-// ===============================
 
 const client = new Client({
 
-    intents: [
+intents:[
 
-        GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.MessageContent
+GatewayIntentBits.Guilds,
+GatewayIntentBits.GuildMessages,
+GatewayIntentBits.MessageContent
 
-    ]
+]
 
 });
 
@@ -47,210 +49,205 @@ client.commands = new Collection();
 
 
 
-// ===============================
-// SISTEMA DE TICKET
-// ===============================
+// SISTEMA DE TICKETS
 
 const tickets = require("./systems/tickets");
 
 
 
 
-// ===============================
-// BOT ONLINE
-// ===============================
+// QUANDO BOT LIGA
 
-client.once("ready", () => {
+client.once("ready",()=>{
 
-    console.log(`✅ Terror Tricolor#${client.user.tag} online!`);
+
+console.log(`✅ Terror Tricolor#${client.user.tag} online!`);
+
 
 });
 
 
 
 
-// ===============================
-// COMANDOS
-// ===============================
+// INTERAÇÕES
 
 client.on("interactionCreate", async interaction => {
 
 
-    // COMANDO /PAINEL
 
-    if(interaction.isChatInputCommand()){
+try{
 
 
-        if(interaction.commandName === "painel"){
 
+// MENU DO PAINEL
 
-            const {
-                EmbedBuilder,
-                ActionRowBuilder,
-                ButtonBuilder,
-                ButtonStyle
-            } = require("discord.js");
 
+if(interaction.isStringSelectMenu()){
 
 
-            const embed = new EmbedBuilder()
 
-            .setColor("#E30613")
+if(interaction.customId === "abrir_ticket"){
 
-            .setTitle("🔴🔵⚪ Terror Tricolor")
 
-            .setDescription(
-`
-🎫 **Central de Atendimento**
 
-Escolha abaixo o motivo do seu contato.
+if(interaction.values[0] === "recrutamento"){
 
-🔴 Recrutamento TUTT
-🔵 Suporte
-⚪ Denúncias
-❓ Dúvidas
-`
-            );
 
 
+await tickets.criarTicket(
 
-            const botoes = new ActionRowBuilder()
+interaction,
 
-            .addComponents(
+"RECRUTAMENTO"
 
-                new ButtonBuilder()
-                .setCustomId("recrutamento")
-                .setLabel("Recrutamento")
-                .setStyle(ButtonStyle.Danger),
+);
 
 
-                new ButtonBuilder()
-                .setCustomId("suporte")
-                .setLabel("Suporte")
-                .setStyle(ButtonStyle.Primary),
 
+}
 
-                new ButtonBuilder()
-                .setCustomId("denuncia")
-                .setLabel("Denúncia")
-                .setStyle(ButtonStyle.Secondary),
 
+}
 
-                new ButtonBuilder()
-                .setCustomId("duvidas")
-                .setLabel("Dúvidas")
-                .setStyle(ButtonStyle.Success)
 
-            );
+}
 
 
 
-            await interaction.reply({
 
-                embeds:[embed],
 
-                components:[botoes]
 
-            });
+// BOTÕES
 
 
-        }
+if(interaction.isButton()){
 
-    }
 
 
+const cargosStaff = [
 
-    // ===============================
-    // CRIAR TICKET
-    // ===============================
 
+"1493905534376742974",
+"1493905535492427836",
+"1528241558204317788",
+"1493905538566590524",
+"1493905541699997726",
+"1493905547626287197"
 
-    if(interaction.isButton()){
 
+];
 
-        if(
 
-            interaction.customId === "recrutamento" ||
 
-            interaction.customId === "suporte" ||
+const pode = interaction.member.roles.cache.some(role =>
 
-            interaction.customId === "denuncia" ||
+cargosStaff.includes(role.id)
 
-            interaction.customId === "duvidas"
+);
 
-        ){
 
 
-            let motivo = interaction.customId;
 
 
-            await tickets.criarTicket(
-                interaction,
-                motivo
-            );
 
+// ASSUMIR TICKET
 
-        }
 
+if(interaction.customId === "assumir"){
 
 
-        // ===============================
-        // ASSUMIR TICKET
-        // ===============================
 
+if(!pode){
 
-        if(interaction.customId === "assumir"){
 
+return interaction.reply({
 
-            await interaction.reply({
+content:"❌ Apenas recrutadores podem assumir tickets.",
 
-                content:
-                `🛠️ ${interaction.user} assumiu este atendimento.`
+ephemeral:true
 
-            });
+});
 
 
-        }
+}
 
 
 
+await interaction.reply({
 
-        // ===============================
-        // FECHAR TICKET
-        // ===============================
+content:`🛠️ ${interaction.user} assumiu este ticket.`
 
+});
 
-        if(interaction.customId === "fechar"){
 
 
-            await interaction.reply({
+}
 
-                content:
-                "🔒 Ticket será fechado em 5 segundos..."
 
-            });
 
 
 
-            setTimeout(()=>{
 
 
-                interaction.channel.delete()
-                .catch(err =>
-                    console.log(
-                        "Erro ao fechar:",
-                        err
-                    )
-                );
+// FECHAR TICKET
 
 
-            },5000);
+if(interaction.customId === "fechar"){
 
 
-        }
 
+if(!pode){
 
-    }
+
+return interaction.reply({
+
+content:"❌ Apenas recrutadores podem fechar tickets.",
+
+ephemeral:true
+
+});
+
+
+}
+
+
+
+
+await interaction.reply({
+
+content:"🔒 Ticket fechado. Este canal será apagado em 5 segundos."
+
+});
+
+
+
+setTimeout(()=>{
+
+
+interaction.channel.delete();
+
+
+},5000);
+
+
+
+}
+
+
+
+}
+
+
+
+
+
+}catch(error){
+
+
+console.log(error);
+
+
+}
 
 
 
@@ -259,9 +256,8 @@ Escolha abaixo o motivo do seu contato.
 
 
 
-// ===============================
+
 // LOGIN
-// ===============================
 
 
 client.login(process.env.TOKEN);
