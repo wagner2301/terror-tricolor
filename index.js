@@ -1,301 +1,123 @@
+const { Client, GatewayIntentBits, Collection } = require("discord.js");
+const express = require("express");
 require("dotenv").config();
 
-const {
-Client,
-GatewayIntentBits,
-Events,
-EmbedBuilder,
-ActionRowBuilder,
-ButtonBuilder,
-ButtonStyle,
-REST,
-Routes
-} = require("discord.js");
+const app = express();
 
+app.get("/", (req, res) => {
+    res.send("🔴🔵⚪ Terror Tricolor online!");
+});
 
-const { criarTicket } = require("./systems/tickets");
+app.listen(process.env.PORT || 3000, () => {
+    console.log("🌐 Servidor web iniciado!");
+});
 
 
 const client = new Client({
+    intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.MessageContent
+    ]
+});
 
-intents:[
 
-GatewayIntentBits.Guilds,
-GatewayIntentBits.GuildMembers,
-GatewayIntentBits.GuildMessages,
-GatewayIntentBits.MessageContent
+client.commands = new Collection();
 
-]
+
+// carregar sistema de tickets
+const tickets = require("./systems/tickets");
+
+
+// quando bot ligar
+client.once("ready", async () => {
+
+    console.log(`✅ Terror Tricolor#${client.user.tag} online!`);
 
 });
 
 
+// comandos e botões
+client.on("interactionCreate", async interaction => {
 
 
-// BOT ONLINE + REGISTRA /PAINEL
+    if (interaction.isChatInputCommand()) {
 
-client.once(Events.ClientReady, async () => {
+        if (interaction.commandName === "painel") {
 
+            const painel = require("./painel");
 
-console.log(`✅ ${client.user.tag} online!`);
+            painel(interaction);
 
+        }
 
-client.user.setActivity(
-"Tickets do Terror Tricolor"
-);
-
-
-
-const commands = [
-
-{
-
-name:"painel",
-
-description:"Abrir painel de tickets do Terror Tricolor"
-
-}
-
-];
+    }
 
 
 
-const rest = new REST({version:"10"})
-.setToken(process.env.TOKEN);
+    if (interaction.isButton()) {
+
+
+        if (
+            interaction.customId === "recrutamento" ||
+            interaction.customId === "suporte" ||
+            interaction.customId === "denuncia" ||
+            interaction.customId === "duvidas"
+        ) {
+
+
+            let motivo = "";
+
+
+            if(interaction.customId === "recrutamento")
+                motivo = "Recrutamento TUTT";
+
+
+            if(interaction.customId === "suporte")
+                motivo = "Suporte";
+
+
+            if(interaction.customId === "denuncia")
+                motivo = "Denúncia";
+
+
+            if(interaction.customId === "duvidas")
+                motivo = "Dúvidas";
 
 
 
-try{
+            await tickets.criarTicket(
+                interaction,
+                motivo
+            );
 
-
-await rest.put(
-
-Routes.applicationGuildCommands(
-
-process.env.CLIENT_ID,
-
-process.env.GUILD_ID
-
-),
-
-{
-
-body:commands
-
-}
-
-);
-
-
-console.log("✅ Comando /painel registrado!");
+        }
 
 
 
-}catch(error){
+        if(interaction.customId === "fechar"){
 
-console.error(error);
+            await interaction.channel.delete();
 
-}
+        }
 
+
+
+        if(interaction.customId === "assumir"){
+
+
+            await interaction.reply({
+                content:"🛠️ Ticket assumido!",
+                ephemeral:false
+            });
+
+
+        }
+
+    }
 
 
 });
-
-
-
-
-
-
-// INTERAÇÕES
-
-client.on(Events.InteractionCreate, async interaction => {
-
-
-try{
-
-
-// COMANDO /PAINEL
-
-if(interaction.isChatInputCommand()){
-
-
-if(interaction.commandName === "painel"){
-
-
-
-const embed = new EmbedBuilder()
-
-.setColor("#E30613")
-
-.setTitle("🔴🔵⚪ Terror Tricolor")
-
-.setDescription(`
-
-🏟️ **Central de Atendimento**
-
-Escolha abaixo o motivo do seu contato.
-
-🔴 Recrutamento TUTT
-🔵 Suporte
-⚪ Denúncias
-❓ Dúvidas
-
-
-Nossa equipe irá atender o mais rápido possível.
-
-`)
-
-.setFooter({
-
-text:"Sistema oficial Terror Tricolor"
-
-});
-
-
-
-const botoes = new ActionRowBuilder()
-
-.addComponents(
-
-
-new ButtonBuilder()
-
-.setCustomId("recrutamento")
-
-.setLabel("Recrutamento")
-
-.setEmoji("🔴")
-
-.setStyle(ButtonStyle.Danger),
-
-
-
-new ButtonBuilder()
-
-.setCustomId("suporte")
-
-.setLabel("Suporte")
-
-.setEmoji("🔵")
-
-.setStyle(ButtonStyle.Primary),
-
-
-
-new ButtonBuilder()
-
-.setCustomId("denuncia")
-
-.setLabel("Denúncia")
-
-.setEmoji("⚪")
-
-.setStyle(ButtonStyle.Secondary),
-
-
-
-new ButtonBuilder()
-
-.setCustomId("duvida")
-
-.setLabel("Dúvidas")
-
-.setEmoji("❓")
-
-.setStyle(ButtonStyle.Success)
-
-
-);
-
-
-
-await interaction.reply({
-
-embeds:[embed],
-
-components:[botoes]
-
-});
-
-
-}
-
-
-}
-
-
-
-
-
-
-// BOTÕES DO PAINEL
-
-
-if(interaction.isButton()){
-
-
-
-let motivo;
-
-
-
-if(interaction.customId === "recrutamento")
-
-motivo="Recrutamento TUTT";
-
-
-
-if(interaction.customId === "suporte")
-
-motivo="Suporte";
-
-
-
-if(interaction.customId === "denuncia")
-
-motivo="Denúncia";
-
-
-
-if(interaction.customId === "duvida")
-
-motivo="Dúvidas";
-
-
-
-
-if(motivo){
-
-
-await criarTicket(
-
-interaction,
-
-motivo
-
-);
-
-
-}
-
-
-
-}
-
-
-
-}catch(error){
-
-console.error(error);
-
-}
-
-
-
-});
-
-
-
 
 
 
