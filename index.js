@@ -1,199 +1,11 @@
-const {
-Client,
-GatewayIntentBits,
-Collection
-} = require("discord.js");
-
-const express = require("express");
-const fs = require("fs");
-require("dotenv").config();
-
-
 // ==========================
-// SERVIDOR RENDER
+// BOTÕES DO TICKET
 // ==========================
-
-const app = express();
-
-
-app.get("/", (req,res)=>{
-
-res.send("🔴🔵⚪ Terror Tricolor online!");
-
-});
-
-
-app.listen(process.env.PORT || 3000, ()=>{
-
-console.log("🌐 Servidor web iniciado!");
-
-});
-
-
-
-
-// ==========================
-// CLIENT DISCORD
-// ==========================
-
-const client = new Client({
-
-intents:[
-
-GatewayIntentBits.Guilds,
-GatewayIntentBits.GuildMessages,
-GatewayIntentBits.MessageContent
-
-]
-
-});
-
-
-
-client.commands = new Collection();
-
-
-
-
-// ==========================
-// CARREGAR COMANDOS
-// ==========================
-
-const commandFiles = fs.readdirSync("./commands")
-.filter(file => file.endsWith(".js"));
-
-
-
-for(const file of commandFiles){
-
-
-const command = require(`./commands/${file}`);
-
-
-client.commands.set(
-
-command.data.name,
-
-command
-
-);
-
-
-console.log(`✅ Comando carregado: ${command.data.name}`);
-
-
-}
-
-
-
-
-
-// ==========================
-// SISTEMA TICKETS
-// ==========================
-
-const tickets = require("./systems/tickets");
-
-
-
-
-// ==========================
-// INTERAÇÕES
-// ==========================
-
-client.on("interactionCreate", async interaction=>{
-
-
-try{
-
-
-
-// ==========================
-// SLASH COMMAND
-// ==========================
-
-
-if(interaction.isChatInputCommand()){
-
-
-
-const command = client.commands.get(
-
-interaction.commandName
-
-);
-
-
-
-if(!command) return;
-
-
-
-await command.execute(interaction);
-
-
-
-}
-
-
-
-
-// ==========================
-// MENU
-// ==========================
-
-
-if(interaction.isStringSelectMenu()){
-
-
-
-if(interaction.customId === "ticket_menu"){
-
-
-
-const escolha = interaction.values[0];
-
-
-
-if(escolha === "recrutamento"){
-
-
-
-await tickets.criarTicket(
-
-interaction,
-
-"Recrutamento TUTT"
-
-);
-
-
-
-}
-
-
-
-}
-
-
-
-}
-
-
-
-
-
-// ==========================
-// BOTÕES
-// ==========================
-
 
 if(interaction.isButton()){
 
 
-
-const cargosPermitidos=[
-
+const cargosPermitidos = [
 
 "1493905534376742974",
 "1493905535492427836",
@@ -202,32 +14,24 @@ const cargosPermitidos=[
 "1493905541699997726",
 "1493905547626287197"
 
-
 ];
 
 
 
-
-
-const permitido = interaction.member.roles.cache.some(
-
+const autorizado = interaction.member.roles.cache.some(
 role => cargosPermitidos.includes(role.id)
-
 );
 
 
 
-
-
-// ASSUMIR
-
+// ==========================
+// ASSUMIR TICKET
+// ==========================
 
 if(interaction.customId === "assumir"){
 
 
-
-if(!permitido){
-
+if(!autorizado){
 
 return interaction.reply({
 
@@ -237,42 +41,41 @@ ephemeral:true
 
 });
 
-
 }
 
 
 
-return interaction.reply({
+await interaction.reply({
 
 content:`🛠️ Ticket assumido por ${interaction.user}`
 
 });
 
 
+
+return;
+
 }
 
 
 
 
-
-// FECHAR
-
+// ==========================
+// FECHAR TICKET
+// ==========================
 
 if(interaction.customId === "fechar"){
 
 
-
-if(!permitido){
-
+if(!autorizado){
 
 return interaction.reply({
 
-content:"❌ Apenas recrutadores podem fechar tickets.",
+content:"❌ Você não tem permissão para fechar tickets.",
 
 ephemeral:true
 
 });
-
 
 }
 
@@ -280,7 +83,7 @@ ephemeral:true
 
 await interaction.reply({
 
-content:"🔒 Ticket fechado. Apagando em 5 segundos..."
+content:`🔒 Ticket fechado por ${interaction.user}. Apagando canal em 5 segundos...`
 
 });
 
@@ -288,81 +91,15 @@ content:"🔒 Ticket fechado. Apagando em 5 segundos..."
 
 setTimeout(()=>{
 
-
-interaction.channel.delete()
-.catch(()=>{});
-
+interaction.channel.delete().catch(()=>{});
 
 },5000);
 
 
 
-}
-
-
-
+return;
 
 }
 
 
-
-}catch(error){
-
-
-console.error("ERRO INTERAÇÃO:",error);
-
-
-
-if(
-!interaction.replied &&
-!interaction.deferred
-){
-
-
-await interaction.reply({
-
-content:"❌ Ocorreu um erro ao executar essa ação.",
-
-ephemeral:true
-
-}).catch(()=>{});
-
-
 }
-
-
-
-}
-
-
-
-});
-
-
-
-
-
-
-// ==========================
-// BOT ONLINE
-// ==========================
-
-client.once("ready",()=>{
-
-
-console.log(
-
-`✅ Terror Tricolor#${client.user.tag} online!`
-
-);
-
-
-});
-
-
-
-
-
-// LOGIN
-
-client.login(process.env.TOKEN);
