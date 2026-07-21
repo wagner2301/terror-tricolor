@@ -11,7 +11,7 @@ data: new SlashCommandBuilder()
 
 .setName("limpar")
 
-.setDescription("Apaga mensagens do canal")
+.setDescription("Apaga mensagens do chat")
 
 .addIntegerOption(option =>
 
@@ -27,10 +27,16 @@ option
 
 
 
+
 async execute(interaction){
 
 
-if(!interaction.member.permissions.has(PermissionFlagsBits.ManageMessages)){
+
+if(!interaction.member.permissions.has(
+
+PermissionFlagsBits.ManageMessages
+
+)){
 
 
 return interaction.reply({
@@ -46,6 +52,7 @@ ephemeral:true
 
 
 
+
 const quantidade = interaction.options.getInteger("quantidade");
 
 
@@ -55,7 +62,7 @@ if(quantidade < 1 || quantidade > 100){
 
 return interaction.reply({
 
-content:"❌ Escolha uma quantidade entre 1 e 100.",
+content:"❌ Escolha entre 1 e 100 mensagens.",
 
 ephemeral:true
 
@@ -67,7 +74,17 @@ ephemeral:true
 
 
 
-await interaction.channel.bulkDelete(
+await interaction.deferReply({
+
+ephemeral:true
+
+});
+
+
+
+
+
+const apagadas = await interaction.channel.bulkDelete(
 
 quantidade,
 
@@ -77,13 +94,14 @@ true
 
 
 
-await interaction.reply({
 
-content:`🧹 Foram apagadas ${quantidade} mensagens.`,
 
-ephemeral:true
+await interaction.editReply({
+
+content:`🧹 Foram apagadas **${apagadas.size} mensagens** do chat.`
 
 });
+
 
 
 }
