@@ -23,6 +23,11 @@ module.exports = {
 async criarTicket(interaction, motivo){
 
 
+await interaction.deferReply({
+ephemeral:true
+});
+
+
 const guild = interaction.guild;
 
 
@@ -42,12 +47,15 @@ PermissionFlagsBits.ViewChannel
 ]
 },
 
+
 {
 id:interaction.user.id,
+
 allow:[
 PermissionFlagsBits.ViewChannel,
 PermissionFlagsBits.SendMessages
 ]
+
 },
 
 
@@ -66,6 +74,7 @@ PermissionFlagsBits.SendMessages
 ]
 
 });
+
 
 
 const embed = new EmbedBuilder()
@@ -88,6 +97,8 @@ Aguarde um membro da equipe.
 
 `);
 
+
+
 const botoes = new ActionRowBuilder()
 
 .addComponents(
@@ -108,6 +119,7 @@ new ButtonBuilder()
 );
 
 
+
 await canal.send({
 
 content:
@@ -120,11 +132,10 @@ components:[botoes]
 });
 
 
-await interaction.reply({
 
-content:`✅ Ticket criado: ${canal}`,
+await interaction.editReply({
 
-ephemeral:true
+content:`✅ Ticket criado: ${canal}`
 
 });
 
