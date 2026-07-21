@@ -87,12 +87,12 @@ console.log(`✅ Comando carregado: ${command.data.name}`);
 
 
 
+
 // ==========================
 // SISTEMA TICKETS
 // ==========================
 
 const tickets = require("./systems/tickets");
-
 
 
 
@@ -104,9 +104,12 @@ const tickets = require("./systems/tickets");
 client.on("interactionCreate", async interaction=>{
 
 
+try{
+
+
 
 // ==========================
-// COMANDO SLASH
+// SLASH COMMAND
 // ==========================
 
 
@@ -126,48 +129,17 @@ if(!command) return;
 
 
 
-try{
-
-
 await command.execute(interaction);
 
 
 
-}catch(error){
-
-
-console.error(error);
-
-
-
-if(!interaction.replied){
-
-
-await interaction.reply({
-
-content:"❌ Erro ao executar comando.",
-
-ephemeral:true
-
-});
-
-
 }
-
-
-
-}
-
-
-
-}
-
 
 
 
 
 // ==========================
-// MENU SELECT
+// MENU
 // ==========================
 
 
@@ -196,12 +168,12 @@ interaction,
 );
 
 
-}
-
-
 
 }
 
+
+
+}
 
 
 
@@ -222,6 +194,7 @@ if(interaction.isButton()){
 
 const cargosPermitidos=[
 
+
 "1493905534376742974",
 "1493905535492427836",
 "1528241558204317788",
@@ -229,14 +202,14 @@ const cargosPermitidos=[
 "1493905541699997726",
 "1493905547626287197"
 
+
 ];
 
 
 
 
-const permitido =
 
-interaction.member.roles.cache.some(
+const permitido = interaction.member.roles.cache.some(
 
 role => cargosPermitidos.includes(role.id)
 
@@ -269,16 +242,15 @@ ephemeral:true
 
 
 
-
-await interaction.reply({
+return interaction.reply({
 
 content:`🛠️ Ticket assumido por ${interaction.user}`
 
 });
 
 
-
 }
+
 
 
 
@@ -308,7 +280,7 @@ ephemeral:true
 
 await interaction.reply({
 
-content:"🔒 Ticket fechado em 5 segundos..."
+content:"🔒 Ticket fechado. Apagando em 5 segundos..."
 
 });
 
@@ -317,7 +289,8 @@ content:"🔒 Ticket fechado em 5 segundos..."
 setTimeout(()=>{
 
 
-interaction.channel.delete();
+interaction.channel.delete()
+.catch(()=>{});
 
 
 },5000);
@@ -328,11 +301,44 @@ interaction.channel.delete();
 
 
 
+
+}
+
+
+
+}catch(error){
+
+
+console.error("ERRO INTERAÇÃO:",error);
+
+
+
+if(
+!interaction.replied &&
+!interaction.deferred
+){
+
+
+await interaction.reply({
+
+content:"❌ Ocorreu um erro ao executar essa ação.",
+
+ephemeral:true
+
+}).catch(()=>{});
+
+
+}
+
+
+
 }
 
 
 
 });
+
+
 
 
 
