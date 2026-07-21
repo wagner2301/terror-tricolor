@@ -1,72 +1,99 @@
 const {
-  EmbedBuilder,
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle
+
+SlashCommandBuilder,
+EmbedBuilder,
+ActionRowBuilder,
+ButtonBuilder,
+ButtonStyle
+
 } = require("discord.js");
+
+
 
 module.exports = {
 
-name: "painel",
+
+
+data: new SlashCommandBuilder()
+
+.setName("painel")
+
+.setDescription("Abrir painel de recrutamento Terror Tricolor"),
+
+
+
 
 async execute(interaction){
 
+
+
 const embed = new EmbedBuilder()
-.setColor("#E30613")
-.setTitle("🏟️ TERRITÓRIO TRICOLOR")
-.setDescription(
-`
-Bem-vindo ao sistema oficial de atendimento do **Terror Tricolor**.
 
-Selecione abaixo o motivo do contato:
 
-🔴 Recrutamento TUTT
-🔵 Suporte
-⚪ Denúncias
-❓ Dúvidas
-`
-)
-.setFooter({
-text:"Terror Tricolor | Sistema de Tickets"
-});
+.setColor("#005CA9")
+
+
+.setTitle("🔵🔴⚪ Terror Tricolor | Recrutamento")
+
+
+.setDescription(`
+
+
+Bem-vindo ao sistema oficial de recrutamento.
+
+
+Clique no botão abaixo para iniciar seu recrutamento.
+
+
+🔴 **Recrutamento TUTT**
+
+
+Nossa equipe entrará em contato com você.
+
+
+🔵 Terror Tricolor
+⚪ Atendimento Oficial
+
+
+`);
+
 
 
 const botoes = new ActionRowBuilder()
+
+
 .addComponents(
 
+
 new ButtonBuilder()
+
 .setCustomId("recrutamento")
+
 .setLabel("Recrutamento")
+
 .setEmoji("🔴")
-.setStyle(ButtonStyle.Danger),
 
-new ButtonBuilder()
-.setCustomId("suporte")
-.setLabel("Suporte")
-.setEmoji("🔵")
-.setStyle(ButtonStyle.Primary),
+.setStyle(ButtonStyle.Danger)
 
-new ButtonBuilder()
-.setCustomId("denuncia")
-.setLabel("Denúncia")
-.setEmoji("⚪")
-.setStyle(ButtonStyle.Secondary),
-
-new ButtonBuilder()
-.setCustomId("duvida")
-.setLabel("Dúvidas")
-.setEmoji("❓")
-.setStyle(ButtonStyle.Success)
 
 );
 
 
+
 await interaction.reply({
+
+
 embeds:[embed],
+
+
 components:[botoes]
+
+
 });
 
 
-}
 
 }
+
+
+};
