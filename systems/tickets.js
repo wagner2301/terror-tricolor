@@ -8,7 +8,6 @@ ButtonStyle
 } = require("discord.js");
 
 
-
 const cargosStaff = [
 
 "1493905534376742974",
@@ -35,9 +34,10 @@ const guild = interaction.guild;
 
 const canal = await guild.channels.create({
 
-name:`recrutamento-${interaction.user.username}`,
+name:`🔴・recrutamento-${interaction.user.username}`,
 
 type:ChannelType.GuildText,
+
 
 permissionOverwrites:[
 
@@ -86,11 +86,11 @@ PermissionFlagsBits.ReadMessageHistory
 
 }))
 
-
-
 ]
 
+
 });
+
 
 
 
@@ -106,34 +106,46 @@ const embed = new EmbedBuilder()
 .setTitle("🔴🔵⚪ Terror Tricolor | Recrutamento")
 
 
-.setDescription(`
+.setDescription(
 
-Olá ${interaction.user}, seja bem-vindo(a)!
+`Olá ${interaction.user}, seja bem-vindo(a)!
 
 
-Seu ticket de recrutamento foi criado.
+Seu atendimento de recrutamento foi aberto.
 
 
 👤 **Usuário:**
 ${interaction.user}
 
 
-📅 **Horário:**
-<t:${Math.floor(Date.now()/1000)}:F>
-
-
 📋 **Motivo:**
 ${motivo}
 
 
-🛠️ **Staff responsável:**
-Ticket não assumido.
+🛠️ **Responsável:**
+Nenhum recrutador assumiu.
 
 
-Aguarde um membro da equipe de recrutamento atender você.
+🟡 **Status:**
+Aguardando atendimento.
 
 
-`);
+⏰ **Criado em:**
+<t:${Math.floor(Date.now()/1000)}:F>
+
+
+Aguarde um membro da equipe de recrutamento.`
+
+)
+
+
+
+.setFooter({
+
+text:"Terror Tricolor • Sistema de Recrutamento"
+
+});
+
 
 
 
@@ -177,6 +189,7 @@ new ButtonBuilder()
 
 
 
+
 await canal.send({
 
 
@@ -198,9 +211,10 @@ components:[botoes]
 
 
 
+
 await interaction.reply({
 
-content:`✅ Ticket criado: ${canal}`,
+content:`✅ Seu ticket foi criado com sucesso: ${canal}`,
 
 ephemeral:true
 
@@ -208,7 +222,7 @@ ephemeral:true
 
 
 
-},
+}
 
 
 
