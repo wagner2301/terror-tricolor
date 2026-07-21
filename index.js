@@ -1,9 +1,10 @@
 const {
 Client,
 GatewayIntentBits,
-Collection
+Collection,
+REST,
+Routes
 } = require("discord.js");
-
 
 const express = require("express");
 const fs = require("fs");
@@ -14,7 +15,6 @@ require("dotenv").config();
 // ==========================
 // SERVIDOR RENDER
 // ==========================
-
 
 const app = express();
 
@@ -59,10 +59,12 @@ client.commands = new Collection();
 
 
 
-
 // ==========================
 // CARREGAR COMANDOS
 // ==========================
+
+
+const commands = [];
 
 
 const commandFiles = fs.readdirSync("./commands")
@@ -87,14 +89,21 @@ command
 
 
 
-console.log(
+commands.push(
 
-`✅ Comando carregado: ${command.data.name}`
+command.data.toJSON()
 
 );
 
 
+
+console.log(
+`✅ Comando carregado: ${command.data.name}`
+);
+
+
 }
+
 
 
 
@@ -114,6 +123,79 @@ const tickets = require("./systems/tickets");
 
 
 // ==========================
+// BOT ONLINE
+// ==========================
+
+
+client.once("clientReady", async()=>{
+
+
+console.log(
+
+`✅ Terror Tricolor#${client.user.tag} online!`
+
+);
+
+
+
+// Registrar comandos automaticamente
+
+
+const rest = new REST({
+
+version:"10"
+
+}).setToken(process.env.TOKEN);
+
+
+
+try{
+
+
+console.log("🔄 Registrando comandos...");
+
+
+
+await rest.put(
+
+Routes.applicationGuildCommands(
+
+process.env.CLIENT_ID,
+
+process.env.GUILD_ID
+
+),
+
+{
+
+body:commands
+
+}
+
+);
+
+
+
+console.log("✅ Comandos registrados!");
+
+
+
+}catch(error){
+
+console.log(error);
+
+}
+
+
+
+});
+
+
+
+
+
+
+// ==========================
 // INTERAÇÕES
 // ==========================
 
@@ -125,13 +207,10 @@ try{
 
 
 
-// ==========================
-// COMANDOS SLASH
-// ==========================
+// COMANDO SLASH
 
 
 if(interaction.isChatInputCommand()){
-
 
 
 const command = client.commands.get(
@@ -149,7 +228,6 @@ if(!command) return;
 await command.execute(interaction);
 
 
-
 return;
 
 
@@ -160,9 +238,7 @@ return;
 
 
 
-// ==========================
 // MENU TICKET
-// ==========================
 
 
 if(interaction.isStringSelectMenu()){
@@ -170,7 +246,6 @@ if(interaction.isStringSelectMenu()){
 
 
 if(interaction.customId === "ticket_menu"){
-
 
 
 const escolha = interaction.values[0];
@@ -192,7 +267,6 @@ interaction,
 }
 
 
-
 }
 
 
@@ -203,11 +277,7 @@ interaction,
 
 
 
-
-
-// ==========================
 // BOTÕES
-// ==========================
 
 
 if(interaction.isButton()){
@@ -229,10 +299,10 @@ const cargosPermitidos=[
 
 
 
+const autorizado =
+interaction.member.roles.cache.some(
 
-const autorizado = interaction.member.roles.cache.some(
-
-role => cargosPermitidos.includes(role.id)
+role=>cargosPermitidos.includes(role.id)
 
 );
 
@@ -240,97 +310,68 @@ role => cargosPermitidos.includes(role.id)
 
 
 
-
-
-// ASSUMIR
-
-
-if(interaction.customId === "assumir"){
-
+if(interaction.customId==="assumir"){
 
 
 if(!autorizado){
 
-
 return interaction.reply({
 
-content:"❌ Você não tem permissão para assumir tickets.",
+content:"❌ Sem permissão.",
 
 ephemeral:true
 
 });
 
-
 }
 
 
 
-
-await interaction.reply({
+return interaction.reply({
 
 content:`🛠️ Ticket assumido por ${interaction.user}`
 
 });
 
 
-return;
-
-
 }
 
 
 
 
 
-
-
-
-// FECHAR
-
-
-if(interaction.customId === "fechar"){
+if(interaction.customId==="fechar"){
 
 
 
 if(!autorizado){
 
-
 return interaction.reply({
 
-content:"❌ Você não tem permissão para fechar tickets.",
+content:"❌ Sem permissão.",
 
 ephemeral:true
 
 });
 
-
 }
-
 
 
 
 await interaction.reply({
 
-content:`🔒 Ticket fechado por ${interaction.user}. Apagando em 5 segundos...`
+content:"🔒 Ticket fechado. Apagando..."
 
 });
-
-
 
 
 setTimeout(()=>{
 
-
 interaction.channel.delete().catch(()=>{});
-
 
 },5000);
 
 
-
-return;
-
-
 }
 
 
@@ -339,27 +380,9 @@ return;
 
 
 
-}
+}catch(error){
 
-catch(error){
-
-
-console.error(error);
-
-
-
-if(!interaction.replied){
-
-interaction.reply({
-
-content:"❌ Ocorreu um erro no sistema.",
-
-ephemeral:true
-
-}).catch(()=>{});
-
-
-}
+console.log(error);
 
 
 }
@@ -372,30 +395,5 @@ ephemeral:true
 
 
 
-
-
-// ==========================
-// BOT ONLINE
-// ==========================
-
-
-client.once("clientReady",()=>{
-
-
-console.log(
-
-`✅ Terror Tricolor#${client.user.tag} online!`
-
-);
-
-
-});
-
-
-
-
-
-
-// LOGIN
 
 client.login(process.env.TOKEN);
