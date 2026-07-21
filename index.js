@@ -1,31 +1,33 @@
-const { 
-    Client, 
-    GatewayIntentBits, 
-    Collection 
+const {
+    Client,
+    GatewayIntentBits,
+    Collection
 } = require("discord.js");
 
 const express = require("express");
 require("dotenv").config();
 
-
-// =======================
-// SERVIDOR PARA O RENDER
-// =======================
-
 const app = express();
+
+
+// ===============================
+// SERVIDOR PARA RENDER
+// ===============================
 
 app.get("/", (req, res) => {
     res.send("🔴🔵⚪ Terror Tricolor online!");
 });
+
 
 app.listen(process.env.PORT || 3000, () => {
     console.log("🌐 Servidor web iniciado!");
 });
 
 
-// =======================
-// BOT DISCORD
-// =======================
+
+// ===============================
+// CLIENT DISCORD
+// ===============================
 
 const client = new Client({
 
@@ -40,17 +42,23 @@ const client = new Client({
 });
 
 
+
 client.commands = new Collection();
 
 
-// sistema tickets
+
+// ===============================
+// SISTEMA DE TICKET
+// ===============================
+
 const tickets = require("./systems/tickets");
 
 
 
-// =======================
+
+// ===============================
 // BOT ONLINE
-// =======================
+// ===============================
 
 client.once("ready", () => {
 
@@ -60,23 +68,91 @@ client.once("ready", () => {
 
 
 
-// =======================
-// INTERAÇÕES
-// =======================
+
+// ===============================
+// COMANDOS
+// ===============================
 
 client.on("interactionCreate", async interaction => {
 
 
-    // COMANDO /painel
+    // COMANDO /PAINEL
 
     if(interaction.isChatInputCommand()){
 
 
         if(interaction.commandName === "painel"){
 
-            const painel = require("./painel");
 
-            painel(interaction);
+            const {
+                EmbedBuilder,
+                ActionRowBuilder,
+                ButtonBuilder,
+                ButtonStyle
+            } = require("discord.js");
+
+
+
+            const embed = new EmbedBuilder()
+
+            .setColor("#E30613")
+
+            .setTitle("🔴🔵⚪ Terror Tricolor")
+
+            .setDescription(
+`
+🎫 **Central de Atendimento**
+
+Escolha abaixo o motivo do seu contato.
+
+🔴 Recrutamento TUTT
+🔵 Suporte
+⚪ Denúncias
+❓ Dúvidas
+`
+            );
+
+
+
+            const botoes = new ActionRowBuilder()
+
+            .addComponents(
+
+                new ButtonBuilder()
+                .setCustomId("recrutamento")
+                .setLabel("Recrutamento")
+                .setStyle(ButtonStyle.Danger),
+
+
+                new ButtonBuilder()
+                .setCustomId("suporte")
+                .setLabel("Suporte")
+                .setStyle(ButtonStyle.Primary),
+
+
+                new ButtonBuilder()
+                .setCustomId("denuncia")
+                .setLabel("Denúncia")
+                .setStyle(ButtonStyle.Secondary),
+
+
+                new ButtonBuilder()
+                .setCustomId("duvidas")
+                .setLabel("Dúvidas")
+                .setStyle(ButtonStyle.Success)
+
+            );
+
+
+
+            await interaction.reply({
+
+                embeds:[embed],
+
+                components:[botoes]
+
+            });
+
 
         }
 
@@ -84,48 +160,33 @@ client.on("interactionCreate", async interaction => {
 
 
 
-    // BOTÕES
+    // ===============================
+    // CRIAR TICKET
+    // ===============================
+
 
     if(interaction.isButton()){
 
 
-        // criar ticket
-
         if(
+
             interaction.customId === "recrutamento" ||
+
             interaction.customId === "suporte" ||
+
             interaction.customId === "denuncia" ||
+
             interaction.customId === "duvidas"
+
         ){
 
 
-            let motivo;
-
-
-
-            if(interaction.customId === "recrutamento")
-                motivo = "Recrutamento TUTT";
-
-
-            if(interaction.customId === "suporte")
-                motivo = "Suporte";
-
-
-            if(interaction.customId === "denuncia")
-                motivo = "Denúncia";
-
-
-            if(interaction.customId === "duvidas")
-                motivo = "Dúvidas";
-
+            let motivo = interaction.customId;
 
 
             await tickets.criarTicket(
-
                 interaction,
-
                 motivo
-
             );
 
 
@@ -133,9 +194,9 @@ client.on("interactionCreate", async interaction => {
 
 
 
-        // ======================
+        // ===============================
         // ASSUMIR TICKET
-        // ======================
+        // ===============================
 
 
         if(interaction.customId === "assumir"){
@@ -144,10 +205,7 @@ client.on("interactionCreate", async interaction => {
             await interaction.reply({
 
                 content:
-                `🛠️ **Ticket assumido por ${interaction.user}!**\n\n` +
-                `O atendente irá cuidar deste atendimento.`,
-
-                ephemeral:false
+                `🛠️ ${interaction.user} assumiu este atendimento.`
 
             });
 
@@ -156,9 +214,10 @@ client.on("interactionCreate", async interaction => {
 
 
 
-        // ======================
+
+        // ===============================
         // FECHAR TICKET
-        // ======================
+        // ===============================
 
 
         if(interaction.customId === "fechar"){
@@ -167,18 +226,25 @@ client.on("interactionCreate", async interaction => {
             await interaction.reply({
 
                 content:
-                "❌ Fechando ticket...",
-
-                ephemeral:false
+                "🔒 Ticket será fechado em 5 segundos..."
 
             });
 
 
+
             setTimeout(()=>{
 
-                interaction.channel.delete();
 
-            },3000);
+                interaction.channel.delete()
+                .catch(err =>
+                    console.log(
+                        "Erro ao fechar:",
+                        err
+                    )
+                );
+
+
+            },5000);
 
 
         }
@@ -187,12 +253,15 @@ client.on("interactionCreate", async interaction => {
     }
 
 
+
 });
 
 
 
-// =======================
+
+// ===============================
 // LOGIN
-// =======================
+// ===============================
+
 
 client.login(process.env.TOKEN);
