@@ -7,13 +7,16 @@ Collection
 const express = require("express");
 require("dotenv").config();
 
-
 const app = express();
 
 
+// ==========================
+// SERVIDOR RENDER
+// ==========================
+
 app.get("/", (req,res)=>{
 
-res.send("🔵🔴⚪ Terror Tricolor online!");
+res.send("🔴🔵⚪ Terror Tricolor online!");
 
 });
 
@@ -25,6 +28,10 @@ console.log("🌐 Servidor web iniciado!");
 });
 
 
+
+// ==========================
+// CLIENT DISCORD
+// ==========================
 
 const client = new Client({
 
@@ -44,36 +51,102 @@ client.commands = new Collection();
 
 
 
+// ==========================
+// SISTEMA DE TICKETS
+// ==========================
+
 const tickets = require("./systems/tickets");
 
 
 
-// LOGIN DO BOT
+// ==========================
+// INTERAÇÕES
+// ==========================
 
-client.once("ready",()=>{
 
-console.log(`✅ Terror Tricolor#${client.user.tag} online!`);
-
-});
-
+client.on("interactionCreate", async(interaction)=>{
 
 
 
-// BOTÕES
+// MENU DE SELEÇÃO
 
-client.on("interactionCreate", async interaction=>{
-
-
-if(!interaction.isButton()) return;
+if(interaction.isStringSelectMenu()){
 
 
 
-// ABRIR RECRUTAMENTO
-
-if(interaction.customId === "recrutamento"){
+if(interaction.customId === "ticket_menu"){
 
 
-await tickets.criarTicket(interaction);
+const escolha = interaction.values[0];
+
+
+
+if(escolha === "recrutamento"){
+
+
+return tickets.criarTicket(
+
+interaction,
+
+"Recrutamento TUTT"
+
+);
+
+
+}
+
+
+
+if(escolha === "suporte"){
+
+
+return tickets.criarTicket(
+
+interaction,
+
+"Suporte"
+
+);
+
+
+}
+
+
+
+if(escolha === "denuncia"){
+
+
+return tickets.criarTicket(
+
+interaction,
+
+"Denúncia"
+
+);
+
+
+}
+
+
+
+if(escolha === "duvidas"){
+
+
+return tickets.criarTicket(
+
+interaction,
+
+"Dúvidas"
+
+);
+
+
+}
+
+
+
+}
+
 
 
 }
@@ -81,35 +154,138 @@ await tickets.criarTicket(interaction);
 
 
 
-// ASSUMIR TICKET
+// ==========================
+// BOTÕES
+// ==========================
 
-if(interaction.customId === "assumir_ticket"){
+
+if(interaction.isButton()){
+
+
+
+const cargosPermitidos=[
+
+"1493905534376742974",
+"1493905535492427836",
+"1528241558204317788",
+"1493905538566590524",
+"1493905541699997726",
+"1493905547626287197"
+
+];
+
+
+
+
+// ASSUMIR
+
+
+if(interaction.customId==="assumir"){
+
+
+
+const permitido =
+interaction.member.roles.cache.some(
+
+role=>cargosPermitidos.includes(role.id)
+
+);
+
+
+
+if(!permitido){
+
+return interaction.reply({
+
+content:"❌ Você não tem permissão para assumir tickets.",
+
+ephemeral:true
+
+});
+
+}
+
+
+
+
+await interaction.channel.send({
+
+content:
+`🛠️ Ticket assumido por ${interaction.user}`
+
+});
+
+
+
+return interaction.reply({
+
+content:"✅ Ticket assumido com sucesso!",
+
+ephemeral:true
+
+});
+
+
+
+}
+
+
+
+
+// FECHAR
+
+
+if(interaction.customId==="fechar"){
+
+
+
+const permitido =
+interaction.member.roles.cache.some(
+
+role=>cargosPermitidos.includes(role.id)
+
+);
+
+
+
+if(!permitido){
+
+return interaction.reply({
+
+content:"❌ Apenas recrutadores autorizados podem fechar tickets.",
+
+ephemeral:true
+
+});
+
+}
 
 
 
 await interaction.reply({
 
-content:
-
-`🛠️ Ticket assumido por ${interaction.user}`,
+content:"🔒 Ticket fechado. Apagando canal em 5 segundos..."
 
 });
+
+
+
+setTimeout(()=>{
+
+
+interaction.channel.delete();
+
+
+},5000);
+
 
 
 }
 
 
 
-
-// FECHAR TICKET
-
-if(interaction.customId === "fechar_ticket"){
-
-
-await tickets.fecharTicket(interaction);
-
-
 }
+
 
 
 });
@@ -117,30 +293,27 @@ await tickets.fecharTicket(interaction);
 
 
 
-// COMANDO PAINEL
-
-client.on("interactionCreate", async interaction=>{
-
-
-if(!interaction.isChatInputCommand()) return;
+// ==========================
+// BOT ONLINE
+// ==========================
 
 
-
-if(interaction.commandName === "painel"){
-
-
-const painel = require("./commands/painel");
+client.once("clientReady",()=>{
 
 
-await painel.execute(interaction);
+console.log(
 
+`✅ Terror Tricolor#${client.user.tag} online!`
 
-}
+);
 
 
 });
 
 
+
+
+// LOGIN
 
 
 client.login(process.env.TOKEN);
