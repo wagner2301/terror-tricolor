@@ -28,6 +28,7 @@ const cargosStaff = [
 module.exports = {
 
 
+
 async criarTicket(interaction, motivo){
 
 
@@ -37,32 +38,28 @@ const guild = interaction.guild;
 
 
 // ==========================
-// IMPEDIR TICKET DUPLICADO
+// BLOQUEAR TICKET DUPLICADO
 // ==========================
 
 
-const ticketExistente = guild.channels.cache.find(
+const ticketAberto = guild.channels.cache.find(
 
 canal =>
 
-canal.name.includes(
-
-`recrutamento-${interaction.user.username}`
-
-)
+canal.topic === `ticket-${interaction.user.id}`
 
 );
 
 
 
-if(ticketExistente){
+if(ticketAberto){
 
 
 return interaction.reply({
 
 content:
 
-`❌ Você já possui um ticket aberto!\n\n🎫 Seu ticket atual: ${ticketExistente}`,
+`❌ Você já possui um ticket aberto!\n\n🎫 Seu ticket atual: ${ticketAberto}`,
 
 ephemeral:true
 
@@ -84,9 +81,15 @@ ephemeral:true
 
 const canal = await guild.channels.create({
 
+
 name:`🔴・recrutamento-${interaction.user.username}`,
 
+
+topic:`ticket-${interaction.user.id}`,
+
+
 type:ChannelType.GuildText,
+
 
 
 permissionOverwrites:[
@@ -152,6 +155,7 @@ PermissionFlagsBits.ReadMessageHistory
 
 
 
+
 // ==========================
 // EMBED DO TICKET
 // ==========================
@@ -166,10 +170,11 @@ const embed = new EmbedBuilder()
 .setTitle("🔴🔵⚪ Terror Tricolor | Recrutamento")
 
 
+
 .setDescription(
 
-
 `Olá ${interaction.user}, seja bem-vindo(a)!
+
 
 Seu atendimento de recrutamento foi aberto.
 
@@ -212,7 +217,15 @@ text:"Terror Tricolor • Sistema de Recrutamento"
 
 
 
+
+
+// ==========================
+// BOTÕES
+// ==========================
+
+
 const botoes = new ActionRowBuilder()
+
 
 .addComponents(
 
@@ -248,7 +261,10 @@ new ButtonBuilder()
 
 
 
+
+
 await canal.send({
+
 
 content:
 
@@ -258,7 +274,11 @@ embeds:[embed],
 
 components:[botoes]
 
+
 });
+
+
+
 
 
 
@@ -266,7 +286,9 @@ components:[botoes]
 
 await interaction.reply({
 
-content:`✅ Seu ticket foi criado com sucesso: ${canal}`,
+content:
+
+`✅ Seu ticket foi criado com sucesso: ${canal}`,
 
 ephemeral:true
 
@@ -275,6 +297,7 @@ ephemeral:true
 
 
 }
+
 
 
 };
