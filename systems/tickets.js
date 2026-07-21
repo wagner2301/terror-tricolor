@@ -22,6 +22,13 @@ const cargosStaff = [
 ];
 
 
+// ID DO CANAL DE LOGS
+
+const canalLogs = "1529030957578063962";
+
+
+
+
 
 module.exports = {
 
@@ -35,8 +42,10 @@ const guild = interaction.guild;
 
 
 
+
+
 // ==========================
-// BLOQUEAR TICKET DUPLICADO
+// BLOQUEAR DUPLICADO
 // ==========================
 
 
@@ -69,7 +78,6 @@ ephemeral:true
 
 
 
-
 // ==========================
 // CRIAR CANAL
 // ==========================
@@ -82,6 +90,7 @@ name:`🔴・recrutamento-${interaction.user.username}`,
 topic:`ticket-${interaction.user.id}`,
 
 type:ChannelType.GuildText,
+
 
 
 permissionOverwrites:[
@@ -119,6 +128,7 @@ PermissionFlagsBits.ReadMessageHistory
 
 ...cargosStaff.map(id=>({
 
+
 id:id,
 
 allow:[
@@ -128,6 +138,7 @@ PermissionFlagsBits.SendMessages,
 PermissionFlagsBits.ReadMessageHistory
 
 ]
+
 
 }))
 
@@ -143,9 +154,8 @@ PermissionFlagsBits.ReadMessageHistory
 
 
 
-
 // ==========================
-// EMBED
+// EMBED TICKET
 // ==========================
 
 
@@ -153,7 +163,6 @@ const embed = new EmbedBuilder()
 
 
 .setColor("#E30613")
-
 
 .setTitle("🔴🔵⚪ Terror Tricolor | Recrutamento")
 
@@ -205,7 +214,6 @@ text:"Terror Tricolor • Sistema de Recrutamento"
 
 
 
-
 // ==========================
 // BOTÕES
 // ==========================
@@ -249,6 +257,7 @@ new ButtonBuilder()
 
 
 
+
 await canal.send({
 
 content:
@@ -259,6 +268,7 @@ embeds:[embed],
 
 components:[botoes]
 
+
 });
 
 
@@ -268,8 +278,9 @@ components:[botoes]
 
 
 
+
 // ==========================
-// RESETAR MENU DO PAINEL
+// RESET MENU
 // ==========================
 
 
@@ -312,6 +323,62 @@ await interaction.message.edit({
 components:[menuNovo]
 
 });
+
+
+
+
+
+
+
+// ==========================
+// LOG DE CRIAÇÃO
+// ==========================
+
+
+const logs = guild.channels.cache.get(canalLogs);
+
+
+
+if(logs){
+
+
+const logEmbed = new EmbedBuilder()
+
+.setColor("#00FF00")
+
+.setTitle("🎫 NOVO TICKET ABERTO")
+
+.setDescription(
+
+`
+👤 **Usuário:**
+${interaction.user}
+
+
+📋 **Motivo:**
+${motivo}
+
+
+📌 **Canal:**
+${canal}
+
+
+🕒 **Data:**
+<t:${Math.floor(Date.now()/1000)}:F>
+`
+
+);
+
+
+
+logs.send({
+
+embeds:[logEmbed]
+
+});
+
+
+}
 
 
 
