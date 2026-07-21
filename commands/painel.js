@@ -8,23 +8,16 @@ StringSelectMenuBuilder
 
 module.exports = {
 
-
 data: new SlashCommandBuilder()
-
 .setName("painel")
-
-.setDescription("Painel de recrutamento"),
-
+.setDescription("Painel de atendimento"),
 
 
 async execute(interaction){
 
-
-
 await interaction.deferReply({
 ephemeral:true
 });
-
 
 
 const embed = new EmbedBuilder()
@@ -34,32 +27,25 @@ const embed = new EmbedBuilder()
 .setTitle("🔴🔵⚪ Centro de Atendimento")
 
 .setDescription(
-`
-Olá! Bem-vindo(a) ao sistema de tickets.
+`Olá! Bem-vindo(a) ao sistema de tickets.
 
-Para abrir um ticket, por favor clique no botão abaixo e nos informe o motivo do seu contato. Estamos aqui para ajudar!
-
+Para abrir um ticket, clique no botão abaixo e informe o motivo do seu contato.
 
 **Atendimento Via Ticket**
 
-Após enviar o motivo, será gerado um canal de texto privado para que possamos ajudá-lo de forma segura e ágil. Estamos aqui para ajudar!
-`
+Após enviar o motivo, será criado um canal privado para atendimento seguro e rápido.
+
+Estamos aqui para ajudar!`
 )
 
-.setImage(
-"https://cdn.discordapp.com/attachments/1493905634360295504/1524518701116952677/ChatGPT_Image_8_07_2026_17_52_15.png"
-)
+.setImage("https://cdn.discordapp.com/attachments/1493905634360295504/1524518701116952677/ChatGPT_Image_8_07_2026_17_52_15.png")
 
 .setFooter({
 text:"Terror Tricolor | Sistema de Tickets"
 });
 
 
-
-
-
 const menu = new ActionRowBuilder()
-
 .addComponents(
 
 new StringSelectMenuBuilder()
@@ -71,22 +57,17 @@ new StringSelectMenuBuilder()
 .addOptions([
 
 {
-
 label:"Recrutamento TUTT",
-
 description:"Abrir ticket de recrutamento",
-
 value:"recrutamento",
-
-emoji:"🔴"
-
+emoji:{
+id:"1468411463118098572"
+}
 }
 
 ])
 
 );
-
-
 
 
 
@@ -99,15 +80,11 @@ components:[menu]
 });
 
 
-
-
-
 await interaction.editReply({
 
-content:"✅ Painel enviado com sucesso!"
+content:"✅ Painel enviado!"
 
 });
-
 
 
 }
