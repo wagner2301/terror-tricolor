@@ -5,14 +5,16 @@ Collection
 } = require("discord.js");
 
 const express = require("express");
+const fs = require("fs");
 require("dotenv").config();
-
-const app = express();
 
 
 // ==========================
 // SERVIDOR RENDER
 // ==========================
+
+const app = express();
+
 
 app.get("/", (req,res)=>{
 
@@ -26,6 +28,7 @@ app.listen(process.env.PORT || 3000, ()=>{
 console.log("🌐 Servidor web iniciado!");
 
 });
+
 
 
 
@@ -51,11 +54,46 @@ client.commands = new Collection();
 
 
 
+
 // ==========================
-// SISTEMA DE TICKETS
+// CARREGAR COMANDOS
+// ==========================
+
+const commandFiles = fs.readdirSync("./commands")
+.filter(file => file.endsWith(".js"));
+
+
+
+for(const file of commandFiles){
+
+
+const command = require(`./commands/${file}`);
+
+
+client.commands.set(
+
+command.data.name,
+
+command
+
+);
+
+
+console.log(`✅ Comando carregado: ${command.data.name}`);
+
+
+}
+
+
+
+
+// ==========================
+// SISTEMA TICKETS
 // ==========================
 
 const tickets = require("./systems/tickets");
+
+
 
 
 
@@ -63,18 +101,82 @@ const tickets = require("./systems/tickets");
 // INTERAÇÕES
 // ==========================
 
-
-client.on("interactionCreate", async(interaction)=>{
-
+client.on("interactionCreate", async interaction=>{
 
 
-// MENU DE SELEÇÃO
+
+// ==========================
+// COMANDO SLASH
+// ==========================
+
+
+if(interaction.isChatInputCommand()){
+
+
+
+const command = client.commands.get(
+
+interaction.commandName
+
+);
+
+
+
+if(!command) return;
+
+
+
+try{
+
+
+await command.execute(interaction);
+
+
+
+}catch(error){
+
+
+console.error(error);
+
+
+
+if(!interaction.replied){
+
+
+await interaction.reply({
+
+content:"❌ Erro ao executar comando.",
+
+ephemeral:true
+
+});
+
+
+}
+
+
+
+}
+
+
+
+}
+
+
+
+
+
+// ==========================
+// MENU SELECT
+// ==========================
+
 
 if(interaction.isStringSelectMenu()){
 
 
 
 if(interaction.customId === "ticket_menu"){
+
 
 
 const escolha = interaction.values[0];
@@ -84,7 +186,8 @@ const escolha = interaction.values[0];
 if(escolha === "recrutamento"){
 
 
-return tickets.criarTicket(
+
+await tickets.criarTicket(
 
 interaction,
 
@@ -97,59 +200,13 @@ interaction,
 
 
 
-if(escolha === "suporte"){
-
-
-return tickets.criarTicket(
-
-interaction,
-
-"Suporte"
-
-);
-
-
 }
 
-
-
-if(escolha === "denuncia"){
-
-
-return tickets.criarTicket(
-
-interaction,
-
-"Denúncia"
-
-);
-
-
-}
-
-
-
-if(escolha === "duvidas"){
-
-
-return tickets.criarTicket(
-
-interaction,
-
-"Dúvidas"
-
-);
-
-
-}
 
 
 
 }
 
-
-
-}
 
 
 
@@ -177,23 +234,27 @@ const cargosPermitidos=[
 
 
 
-// ASSUMIR
-
-
-if(interaction.customId==="assumir"){
-
-
-
 const permitido =
+
 interaction.member.roles.cache.some(
 
-role=>cargosPermitidos.includes(role.id)
+role => cargosPermitidos.includes(role.id)
 
 );
 
 
 
+
+
+// ASSUMIR
+
+
+if(interaction.customId === "assumir"){
+
+
+
 if(!permitido){
+
 
 return interaction.reply({
 
@@ -203,25 +264,15 @@ ephemeral:true
 
 });
 
+
 }
 
 
 
 
-await interaction.channel.send({
+await interaction.reply({
 
-content:
-`🛠️ Ticket assumido por ${interaction.user}`
-
-});
-
-
-
-return interaction.reply({
-
-content:"✅ Ticket assumido com sucesso!",
-
-ephemeral:true
+content:`🛠️ Ticket assumido por ${interaction.user}`
 
 });
 
@@ -235,28 +286,21 @@ ephemeral:true
 // FECHAR
 
 
-if(interaction.customId==="fechar"){
-
-
-
-const permitido =
-interaction.member.roles.cache.some(
-
-role=>cargosPermitidos.includes(role.id)
-
-);
+if(interaction.customId === "fechar"){
 
 
 
 if(!permitido){
 
+
 return interaction.reply({
 
-content:"❌ Apenas recrutadores autorizados podem fechar tickets.",
+content:"❌ Apenas recrutadores podem fechar tickets.",
 
 ephemeral:true
 
 });
+
 
 }
 
@@ -264,7 +308,7 @@ ephemeral:true
 
 await interaction.reply({
 
-content:"🔒 Ticket fechado. Apagando canal em 5 segundos..."
+content:"🔒 Ticket fechado em 5 segundos..."
 
 });
 
@@ -297,8 +341,7 @@ interaction.channel.delete();
 // BOT ONLINE
 // ==========================
 
-
-client.once("clientReady",()=>{
+client.once("ready",()=>{
 
 
 console.log(
@@ -313,7 +356,7 @@ console.log(
 
 
 
-// LOGIN
 
+// LOGIN
 
 client.login(process.env.TOKEN);
