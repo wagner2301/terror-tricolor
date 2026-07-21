@@ -4,13 +4,13 @@ PermissionFlagsBits,
 EmbedBuilder,
 ActionRowBuilder,
 ButtonBuilder,
-ButtonStyle
+ButtonStyle,
+StringSelectMenuBuilder
 } = require("discord.js");
 
 
 
 const cargosStaff = [
-
 
 "1493905534376742974",
 "1493905535492427836",
@@ -19,9 +19,7 @@ const cargosStaff = [
 "1493905541699997726",
 "1493905547626287197"
 
-
 ];
-
 
 
 
@@ -44,9 +42,7 @@ const guild = interaction.guild;
 
 const ticketAberto = guild.channels.cache.find(
 
-canal =>
-
-canal.topic === `ticket-${interaction.user.id}`
+canal => canal.topic === `ticket-${interaction.user.id}`
 
 );
 
@@ -59,7 +55,7 @@ return interaction.reply({
 
 content:
 
-`❌ Você já possui um ticket aberto!\n\n🎫 Seu ticket atual: ${ticketAberto}`,
+`❌ Você já possui um ticket aberto!\n\n🎫 ${ticketAberto}`,
 
 ephemeral:true
 
@@ -81,15 +77,11 @@ ephemeral:true
 
 const canal = await guild.channels.create({
 
-
 name:`🔴・recrutamento-${interaction.user.username}`,
-
 
 topic:`ticket-${interaction.user.id}`,
 
-
 type:ChannelType.GuildText,
-
 
 
 permissionOverwrites:[
@@ -127,9 +119,7 @@ PermissionFlagsBits.ReadMessageHistory
 
 ...cargosStaff.map(id=>({
 
-
 id:id,
-
 
 allow:[
 
@@ -138,7 +128,6 @@ PermissionFlagsBits.SendMessages,
 PermissionFlagsBits.ReadMessageHistory
 
 ]
-
 
 }))
 
@@ -155,9 +144,8 @@ PermissionFlagsBits.ReadMessageHistory
 
 
 
-
 // ==========================
-// EMBED DO TICKET
+// EMBED
 // ==========================
 
 
@@ -168,7 +156,6 @@ const embed = new EmbedBuilder()
 
 
 .setTitle("🔴🔵⚪ Terror Tricolor | Recrutamento")
-
 
 
 .setDescription(
@@ -262,9 +249,7 @@ new ButtonBuilder()
 
 
 
-
 await canal.send({
-
 
 content:
 
@@ -274,9 +259,59 @@ embeds:[embed],
 
 components:[botoes]
 
-
 });
 
+
+
+
+
+
+
+
+// ==========================
+// RESETAR MENU DO PAINEL
+// ==========================
+
+
+const menuNovo = new ActionRowBuilder()
+
+.addComponents(
+
+new StringSelectMenuBuilder()
+
+.setCustomId("ticket_menu")
+
+.setPlaceholder("Escolha uma opção.")
+
+.addOptions([
+
+{
+
+label:"Recrutamento TUTT",
+
+description:"Clique aqui para iniciar seu recrutamento",
+
+value:"recrutamento",
+
+emoji:{
+
+id:"1209867647529783396"
+
+}
+
+}
+
+])
+
+);
+
+
+
+await interaction.message.edit({
+
+components:[menuNovo]
+
+});
 
 
 
