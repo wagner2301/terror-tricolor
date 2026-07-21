@@ -4,12 +4,10 @@ PermissionFlagsBits,
 EmbedBuilder,
 ActionRowBuilder,
 ButtonBuilder,
-ButtonStyle,
-StringSelectMenuBuilder
+ButtonStyle
 } = require("discord.js");
 
 
-// CARGOS QUE PODEM ATENDER
 const cargosStaff = [
 "1493905534376742974",
 "1493905535492427836",
@@ -20,147 +18,41 @@ const cargosStaff = [
 ];
 
 
-
 module.exports = {
 
 
-// PAINEL INICIAL
-
-async painel(interaction){
-
-
-const embed = new EmbedBuilder()
-
-.setColor("#009900")
-
-.setTitle("🎟️ Centro de Atendimento")
-
-.setDescription(`
-
-• Olá! Bem-vindo(a) ao sistema de tickets.
-
-Para abrir um ticket, escolha abaixo o motivo do seu contato.
-
-Estamos aqui para ajudar!
-
-
-━━━━━━━━━━━━━━
-
-
-**Atendimento Via Ticket**
-
-• Após enviar o motivo, será criado um canal privado para que nossa equipe possa ajudar você de forma segura e ágil.
-
-`)
-
-
-
-.setImage("COLOQUE_O_LINK_DA_IMAGEM");
-
-
-
-const menu = new ActionRowBuilder()
-
-.addComponents(
-
-new StringSelectMenuBuilder()
-
-.setCustomId("abrir_ticket")
-
-.setPlaceholder("Escolha uma opção.")
-
-.addOptions([
-
-{
-
-label:"RECRUTAMENTO",
-
-description:"Abra um ticket para ser recrutado",
-
-value:"recrutamento",
-
-emoji:"🟢"
-
-}
-
-])
-
-);
-
-
-
-await interaction.channel.send({
-
-embeds:[embed],
-
-components:[menu]
-
-});
-
-
-await interaction.reply({
-
-content:"✅ Painel criado.",
-
-ephemeral:true
-
-});
-
-
-},
-
-
-
-// CRIAR TICKET
-
-
-async criarTicket(interaction, motivo){
+async criarTicket(interaction){
 
 
 const guild = interaction.guild;
 
 
-
 const canal = await guild.channels.create({
 
-name:`ticket-${interaction.user.username}`,
+name:`recrutamento-${interaction.user.username}`,
 
 type:ChannelType.GuildText,
 
 
 permissionOverwrites:[
 
-
 {
-
 id:guild.id,
-
 deny:[
-
 PermissionFlagsBits.ViewChannel
-
 ]
-
 },
 
 
-
 {
-
 id:interaction.user.id,
 
 allow:[
-
 PermissionFlagsBits.ViewChannel,
-
-PermissionFlagsBits.SendMessages,
-
-PermissionFlagsBits.ReadMessageHistory
-
+PermissionFlagsBits.SendMessages
 ]
 
 },
-
 
 
 ...cargosStaff.map(id=>({
@@ -168,68 +60,43 @@ PermissionFlagsBits.ReadMessageHistory
 id:id,
 
 allow:[
-
 PermissionFlagsBits.ViewChannel,
-
-PermissionFlagsBits.SendMessages,
-
-PermissionFlagsBits.ReadMessageHistory
-
+PermissionFlagsBits.SendMessages
 ]
 
 }))
 
-
-
 ]
+
 
 });
 
 
 
-
-
 const embed = new EmbedBuilder()
 
+.setColor("#005CA9")
 
-.setColor("#009900")
-
-
-.setTitle("🟢 Terror Tricolor | Atendimento")
-
+.setTitle("🔵🔴⚪ Terror Tricolor | Recrutamento")
 
 .setDescription(`
 
-
-Olá ${interaction.user}
-
-
-Seu atendimento foi criado.
+Olá ${interaction.user} 👋
 
 
-**Usuário:**
-
-${interaction.user}
+Seu ticket de recrutamento foi criado!
 
 
-**Horário:**
-
-<t:${Math.floor(Date.now()/1000)}:f>
-
-
-**Motivo:**
-
-${motivo}
+📌 **Motivo:**
+Recrutamento TUTT
 
 
-**Staff que assumiu:**
-
-Ticket não assumido.
+Aguarde um recrutador da equipe.
 
 
-
-Aguarde um membro da equipe vir atender.
-
+🔵 Terror Tricolor
+🔴 Diretoria
+⚪ Recrutamento
 
 `);
 
@@ -239,11 +106,9 @@ const botoes = new ActionRowBuilder()
 
 .addComponents(
 
-
-
 new ButtonBuilder()
 
-.setCustomId("assumir")
+.setCustomId("assumir_ticket")
 
 .setLabel("Assumir Ticket")
 
@@ -255,14 +120,13 @@ new ButtonBuilder()
 
 new ButtonBuilder()
 
-.setCustomId("fechar")
+.setCustomId("fechar_ticket")
 
 .setLabel("Fechar Ticket")
 
 .setEmoji("❌")
 
 .setStyle(ButtonStyle.Danger)
-
 
 
 );
@@ -272,8 +136,7 @@ new ButtonBuilder()
 await canal.send({
 
 content:
-
-`${interaction.user} ${cargosStaff.map(id=>`<@&${id}>`).join(" ")}`,
+`${interaction.user} ${cargosStaff.map(x=>`<@&${x}>`).join(" ")}`,
 
 embeds:[embed],
 
@@ -285,13 +148,57 @@ components:[botoes]
 
 await interaction.reply({
 
-content:`✅ Ticket criado: ${canal}`,
+content:`✅ Seu ticket foi criado: ${canal}`,
 
 ephemeral:true
 
 });
 
 
+},
+
+
+
+async fecharTicket(interaction){
+
+
+const temCargo = interaction.member.roles.cache.some(
+r=>cargosStaff.includes(r.id)
+);
+
+
+
+if(!temCargo){
+
+return interaction.reply({
+
+content:"❌ Você não tem permissão para fechar tickets.",
+
+ephemeral:true
+
+});
+
 }
+
+
+
+await interaction.reply({
+
+content:"🔴 Ticket será fechado em 5 segundos..."
+
+});
+
+
+setTimeout(()=>{
+
+interaction.channel.delete();
+
+},5000);
+
+
+
+}
+
+
 
 };
