@@ -49,8 +49,11 @@ const embed = new EmbedBuilder()
 
 
 .setFooter({
+
 text:"Terror Tricolor | Sistema de Tickets"
+
 });
+
 
 
 
@@ -66,6 +69,10 @@ new StringSelectMenuBuilder()
 
 .setPlaceholder("Escolha uma opção.")
 
+.setMinValues(1)
+
+.setMaxValues(1)
+
 .addOptions([
 
 {
@@ -77,7 +84,9 @@ description:"Clique aqui para iniciar seu recrutamento",
 value:"recrutamento",
 
 emoji:{
+
 id:"1209867647529783396"
+
 }
 
 }
@@ -85,6 +94,7 @@ id:"1209867647529783396"
 ])
 
 );
+
 
 
 
@@ -100,11 +110,13 @@ components:[menu]
 
 
 
+
 await interaction.editReply({
 
 content:"✅ Painel enviado com sucesso!"
 
 });
+
 
 
 }
