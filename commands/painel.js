@@ -1,4 +1,4 @@
-const { 
+const {
 SlashCommandBuilder,
 EmbedBuilder,
 ActionRowBuilder,
@@ -9,8 +9,11 @@ StringSelectMenuBuilder
 module.exports = {
 
 data: new SlashCommandBuilder()
+
 .setName("painel")
+
 .setDescription("Painel de recrutamento"),
+
 
 
 async execute(interaction){
@@ -21,26 +24,38 @@ ephemeral:true
 });
 
 
+
 const embed = new EmbedBuilder()
 
 .setColor("#E30613")
 
 .setTitle("🔴🔵⚪ Terror Tricolor | Recrutamento")
 
-.setDescription(
-`Bem-vindo ao sistema oficial de recrutamento.
+.setDescription(`
+
+Bem-vindo ao sistema oficial de recrutamento do **Terror Tricolor**.
+
 
 Selecione abaixo para iniciar seu atendimento.
 
-🔴 Recrutamento TUTT
 
-Nossa equipe entrará em contato.`
-)
+🔴 **Recrutamento TUTT**
+
+Nossa equipe entrará em contato com você.
+
+
+🔵 Terror Tricolor
+⚪ Atendimento Oficial
+
+`)
 
 .setImage("https://cdn.discordapp.com/attachments/1493905634360295504/1524518701116952677/ChatGPT_Image_8_07_2026_17_52_15.png");
 
 
+
+
 const menu = new ActionRowBuilder()
+
 .addComponents(
 
 new StringSelectMenuBuilder()
@@ -49,14 +64,16 @@ new StringSelectMenuBuilder()
 
 .setPlaceholder("Escolha uma opção.")
 
-.addOptions({
+.addOptions(
 
+{
 label:"Recrutamento TUTT",
 description:"Abrir recrutamento",
 value:"recrutamento",
 emoji:"🔴"
+}
 
-})
+)
 
 );
 
@@ -69,6 +86,7 @@ embeds:[embed],
 components:[menu]
 
 });
+
 
 
 await interaction.editReply({
