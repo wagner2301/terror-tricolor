@@ -9,15 +9,20 @@ StringSelectMenuBuilder
 module.exports = {
 
 data: new SlashCommandBuilder()
+
 .setName("painel")
+
 .setDescription("Painel de atendimento"),
+
 
 
 async execute(interaction){
 
+
 await interaction.deferReply({
 ephemeral:true
 });
+
 
 
 const embed = new EmbedBuilder()
@@ -33,19 +38,24 @@ Para abrir um ticket, clique no botão abaixo e informe o motivo do seu contato.
 
 **Atendimento Via Ticket**
 
-Após enviar o motivo, será criado um canal privado para atendimento seguro e rápido.
+Após enviar o motivo, será criado um canal de texto privado para que possamos ajudá-lo de forma segura e ágil.
 
 Estamos aqui para ajudar!`
 )
 
-.setImage("https://cdn.discordapp.com/attachments/1493905634360295504/1524518701116952677/ChatGPT_Image_8_07_2026_17_52_15.png")
+.setImage(
+"https://cdn.discordapp.com/attachments/1525367337023311963/1528978418555813918/LOGO_2026.png"
+)
 
 .setFooter({
 text:"Terror Tricolor | Sistema de Tickets"
 });
 
 
+
+
 const menu = new ActionRowBuilder()
+
 .addComponents(
 
 new StringSelectMenuBuilder()
@@ -57,17 +67,24 @@ new StringSelectMenuBuilder()
 .addOptions([
 
 {
+
 label:"Recrutamento TUTT",
-description:"Abrir ticket de recrutamento",
+
+description:"Clique aqui para iniciar seu recrutamento",
+
 value:"recrutamento",
+
 emoji:{
-id:"1468411463118098572"
+id:"1468410896807235831"
 }
+
 }
 
 ])
 
 );
+
+
 
 
 
@@ -80,9 +97,10 @@ components:[menu]
 });
 
 
+
 await interaction.editReply({
 
-content:"✅ Painel enviado!"
+content:"✅ Painel enviado com sucesso!"
 
 });
 
