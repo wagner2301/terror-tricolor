@@ -120,14 +120,7 @@ console.log(
 // ==========================
 
 
-const tickets = require("./systems/tickets");
-
-
-
-
-
-
-// ==========================
+const tickets = require("./systems/tickets"); // ==========================
 // BOT ONLINE
 // ==========================
 
@@ -142,8 +135,6 @@ console.log(
 );
 
 
-
-// registra comandos automaticamente
 
 const rest = new REST({
 
@@ -173,6 +164,7 @@ body:comandos
 }
 
 );
+
 
 
 console.log("✅ Comandos registrados!");
@@ -207,8 +199,6 @@ try{
 
 
 
-
-
 // ==========================
 // COMANDOS SLASH
 // ==========================
@@ -235,8 +225,8 @@ await command.execute(interaction);
 
 return;
 
-
 }
+
 
 
 
@@ -298,8 +288,7 @@ if(interaction.isButton()){
 
 
 
-const cargosPermitidos=[
-
+const cargosPermitidos = [
 
 "1493905534376742974",
 "1493905535492427836",
@@ -308,19 +297,15 @@ const cargosPermitidos=[
 "1493905541699997726",
 "1493905547626287197"
 
-
 ];
 
 
 
-const autorizado =
+const autorizado = interaction.member.roles.cache.some(
 
-interaction.member.roles.cache.some(
-
-role=>cargosPermitidos.includes(role.id)
+role => cargosPermitidos.includes(role.id)
 
 );
-
 
 
 
@@ -338,7 +323,6 @@ if(interaction.customId === "assumir"){
 
 if(!autorizado){
 
-
 return interaction.reply({
 
 content:"❌ Você não tem permissão para assumir tickets.",
@@ -347,9 +331,7 @@ ephemeral:true
 
 });
 
-
 }
-
 
 
 
@@ -393,7 +375,7 @@ let texto = embed.data.description;
 
 texto = texto.replace(
 
-"Ticket não assumido.",
+"Nenhum recrutador assumiu.",
 
 `${interaction.user}`
 
@@ -403,11 +385,12 @@ texto = texto.replace(
 
 texto = texto.replace(
 
-"🟡 Status:\nAguardando atendimento.",
+"Aguardando atendimento.",
 
-"🟢 Status:\nEm atendimento."
+"🟢 Em atendimento."
 
 );
+
 
 
 
@@ -415,11 +398,35 @@ embed.setDescription(texto);
 
 
 
+
+const botoes = new ActionRowBuilder()
+
+.addComponents(
+
+
+new ButtonBuilder()
+
+.setCustomId("fechar")
+
+.setLabel("Fechar Ticket")
+
+.setEmoji("❌")
+
+.setStyle(ButtonStyle.Danger)
+
+
+);
+
+
+
 await mensagemTicket.edit({
 
-embeds:[embed]
+embeds:[embed],
+
+components:[botoes]
 
 });
+
 
 
 }
@@ -430,13 +437,14 @@ embeds:[embed]
 
 await interaction.reply({
 
-content:`🛠️ Ticket assumido por ${interaction.user}`
+content:`🛠️ Ticket assumido por ${interaction.user}`,
+
+ephemeral:true
 
 });
 
 
 return;
-
 
 }
 
@@ -459,7 +467,6 @@ if(interaction.customId === "fechar"){
 
 if(!autorizado){
 
-
 return interaction.reply({
 
 content:"❌ Você não tem permissão para fechar tickets.",
@@ -468,8 +475,9 @@ ephemeral:true
 
 });
 
-
 }
+
+
 
 
 
@@ -505,17 +513,15 @@ new ButtonBuilder()
 
 
 
-
 return interaction.reply({
 
-content:"🔒 Confirmar fechamento do ticket?",
+content:"🔒 Confirmar fechamento deste ticket?",
 
 components:[botoes],
 
 ephemeral:true
 
 });
-
 
 }
 
@@ -526,9 +532,8 @@ ephemeral:true
 
 
 
-
 // ==========================
-// CONFIRMAR FECHAR
+// CONFIRMAR FECHAMENTO
 // ==========================
 
 
@@ -538,9 +543,7 @@ if(interaction.customId === "confirmar_fechar"){
 
 await interaction.update({
 
-content:
-
-`🔒 Ticket fechado por ${interaction.user}`,
+content:`🔒 Ticket fechado por ${interaction.user}. Apagando...`,
 
 components:[]
 
@@ -551,16 +554,17 @@ components:[]
 setTimeout(()=>{
 
 
-interaction.channel.delete()
-
-.catch(()=>{});
+interaction.channel.delete().catch(()=>{});
 
 
 },5000);
 
 
 
+return;
+
 }
+
 
 
 
@@ -590,13 +594,12 @@ components:[]
 
 
 
-
-
 }
 
 
 
 }catch(error){
+
 
 console.log(error);
 
