@@ -7,7 +7,8 @@ Routes,
 EmbedBuilder,
 ActionRowBuilder,
 ButtonBuilder,
-ButtonStyle
+ButtonStyle,
+StringSelectMenuBuilder
 } = require("discord.js");
 
 
@@ -40,7 +41,6 @@ console.log("🌐 Servidor web iniciado!");
 
 
 
-
 // ==========================
 // CLIENT DISCORD
 // ==========================
@@ -63,7 +63,6 @@ GatewayIntentBits.MessageContent
 client.commands = new Collection();
 
 const comandos = [];
-
 
 
 
@@ -94,6 +93,7 @@ command
 );
 
 
+
 comandos.push(
 
 command.data.toJSON()
@@ -120,7 +120,13 @@ console.log(
 // ==========================
 
 
-const tickets = require("./systems/tickets"); // ==========================
+const tickets = require("./systems/tickets");
+
+
+
+
+
+// ==========================
 // BOT ONLINE
 // ==========================
 
@@ -178,16 +184,7 @@ console.log(error);
 }
 
 
-});
-
-
-
-
-
-
-
-
-// ==========================
+}); // ==========================
 // INTERAÇÕES
 // ==========================
 
@@ -251,10 +248,12 @@ const escolha = interaction.values[0];
 
 
 
+
+
 if(escolha === "recrutamento"){
 
 
-return tickets.criarTicket(
+await tickets.criarTicket(
 
 interaction,
 
@@ -266,7 +265,64 @@ interaction,
 }
 
 
+
+
+
+
+// RESETAR MENU
+
+const novoMenu = new ActionRowBuilder()
+
+.addComponents(
+
+
+new StringSelectMenuBuilder()
+
+.setCustomId("ticket_menu")
+
+.setPlaceholder("Escolha uma opção.")
+
+.addOptions([
+
+{
+
+label:"Recrutamento TUTT",
+
+description:"Clique aqui para iniciar seu recrutamento",
+
+value:"recrutamento",
+
+emoji:{
+
+id:"1209867647529783396"
+
 }
+
+}
+
+])
+
+
+)
+
+);
+
+
+
+
+
+await interaction.message.edit({
+
+components:[novoMenu]
+
+});
+
+
+
+return;
+
+}
+
 
 
 }
@@ -288,7 +344,8 @@ if(interaction.isButton()){
 
 
 
-const cargosPermitidos = [
+const cargosPermitidos=[
+
 
 "1493905534376742974",
 "1493905535492427836",
@@ -297,7 +354,9 @@ const cargosPermitidos = [
 "1493905541699997726",
 "1493905547626287197"
 
+
 ];
+
 
 
 
@@ -306,6 +365,7 @@ const autorizado = interaction.member.roles.cache.some(
 role => cargosPermitidos.includes(role.id)
 
 );
+
 
 
 
@@ -323,6 +383,7 @@ if(interaction.customId === "assumir"){
 
 if(!autorizado){
 
+
 return interaction.reply({
 
 content:"❌ Você não tem permissão para assumir tickets.",
@@ -331,7 +392,9 @@ ephemeral:true
 
 });
 
+
 }
+
 
 
 
@@ -344,6 +407,8 @@ limit:10
 
 
 
+
+
 const mensagemTicket = mensagens.find(
 
 msg =>
@@ -353,6 +418,8 @@ msg.author.id === client.user.id &&
 msg.embeds.length > 0
 
 );
+
+
 
 
 
@@ -394,7 +461,9 @@ texto = texto.replace(
 
 
 
+
 embed.setDescription(texto);
+
 
 
 
@@ -419,6 +488,9 @@ new ButtonBuilder()
 
 
 
+
+
+
 await mensagemTicket.edit({
 
 embeds:[embed],
@@ -435,6 +507,7 @@ components:[botoes]
 
 
 
+
 await interaction.reply({
 
 content:`🛠️ Ticket assumido por ${interaction.user}`,
@@ -444,7 +517,9 @@ ephemeral:true
 });
 
 
+
 return;
+
 
 }
 
@@ -467,6 +542,7 @@ if(interaction.customId === "fechar"){
 
 if(!autorizado){
 
+
 return interaction.reply({
 
 content:"❌ Você não tem permissão para fechar tickets.",
@@ -475,8 +551,8 @@ ephemeral:true
 
 });
 
-}
 
+}
 
 
 
@@ -513,6 +589,8 @@ new ButtonBuilder()
 
 
 
+
+
 return interaction.reply({
 
 content:"🔒 Confirmar fechamento deste ticket?",
@@ -523,6 +601,7 @@ ephemeral:true
 
 });
 
+
 }
 
 
@@ -532,8 +611,9 @@ ephemeral:true
 
 
 
+
 // ==========================
-// CONFIRMAR FECHAMENTO
+// CONFIRMAR FECHAR
 // ==========================
 
 
@@ -543,7 +623,9 @@ if(interaction.customId === "confirmar_fechar"){
 
 await interaction.update({
 
-content:`🔒 Ticket fechado por ${interaction.user}. Apagando...`,
+content:
+
+`🔒 Ticket fechado por ${interaction.user}. Apagando canal...`,
 
 components:[]
 
@@ -551,10 +633,13 @@ components:[]
 
 
 
+
 setTimeout(()=>{
 
 
-interaction.channel.delete().catch(()=>{});
+interaction.channel.delete()
+
+.catch(()=>{});
 
 
 },5000);
@@ -562,6 +647,7 @@ interaction.channel.delete().catch(()=>{});
 
 
 return;
+
 
 }
 
@@ -572,8 +658,9 @@ return;
 
 
 
+
 // ==========================
-// CANCELAR
+// CANCELAR FECHAR
 // ==========================
 
 
@@ -598,6 +685,7 @@ components:[]
 
 
 
+
 }catch(error){
 
 
@@ -607,9 +695,7 @@ console.log(error);
 }
 
 
-
 });
-
 
 
 
