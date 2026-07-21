@@ -1,46 +1,54 @@
 const {
+SlashCommandBuilder,
 EmbedBuilder,
 ActionRowBuilder,
-ButtonBuilder,
-ButtonStyle,
 StringSelectMenuBuilder
 } = require("discord.js");
 
 
+module.exports = {
+
+data: new SlashCommandBuilder()
+
+.setName("painel")
+
+.setDescription("Envia o painel de recrutamento"),
+
+
+
+async execute(interaction){
+
+
 const embed = new EmbedBuilder()
 
-.setColor("#E30613") // vermelho Terror Tricolor
+.setColor("#E30613")
 
-.setTitle("🔴🔵⚪ TERROR TRICOLOR")
+.setTitle("🔴🔵⚪ Terror Tricolor | Recrutamento")
 
 .setDescription(`
 
-Bem-vindo ao sistema oficial de atendimento do **Terror Tricolor**.
+Bem-vindo ao sistema oficial de recrutamento do **Terror Tricolor**.
 
-Selecione abaixo o motivo do seu contato:
+Clique abaixo para iniciar seu recrutamento.
+
 
 🔴 **Recrutamento TUTT**
-> Abra um ticket para ser recrutado.
 
-🔵 **Suporte**
-> Problemas ou dúvidas.
+Nossa equipe entrará em contato com você.
 
-⚪ **Denúncias**
-> Envie uma denúncia.
 
-❓ **Dúvidas**
-> Tire suas dúvidas.
-
-**Terror Tricolor | Sistema de Tickets**
+🔵 Terror Tricolor
+⚪ Atendimento Oficial
 
 `)
+
 
 .setImage("https://cdn.discordapp.com/attachments/1493905634360295504/1524518701116952677/ChatGPT_Image_8_07_2026_17_52_15.png?ex=6a5fdc2e&is=6a5e8aae&hm=fb8fdca70aeb0edf9bbd2dc04218a9b2f18d57028261c2216d5f04cffa5aad0b&");
 
 
-// MENU IGUAL O PRINT
 
 const menu = new ActionRowBuilder()
+
 .addComponents(
 
 new StringSelectMenuBuilder()
@@ -53,30 +61,9 @@ new StringSelectMenuBuilder()
 
 {
 label:"Recrutamento TUTT",
-description:"Abra para ser recrutado",
+description:"Abra seu recrutamento",
 value:"recrutamento",
 emoji:"🔴"
-},
-
-{
-label:"Suporte",
-description:"Ajuda com problemas",
-value:"suporte",
-emoji:"🔵"
-},
-
-{
-label:"Denúncias",
-description:"Faça uma denúncia",
-value:"denuncia",
-emoji:"⚪"
-},
-
-{
-label:"Dúvidas",
-description:"Tire suas dúvidas",
-value:"duvidas",
-emoji:"❓"
 }
 
 ])
@@ -84,10 +71,26 @@ emoji:"❓"
 );
 
 
-await channel.send({
+
+await interaction.reply({
+
+content:"✅ Painel enviado!",
+
+ephemeral:true
+
+});
+
+
+
+await interaction.channel.send({
 
 embeds:[embed],
 
 components:[menu]
 
 });
+
+
+}
+
+};
