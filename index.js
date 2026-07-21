@@ -1,23 +1,22 @@
 const {
 Client,
 GatewayIntentBits,
-Collection,
-EmbedBuilder
+Collection
 } = require("discord.js");
 
 
 const express = require("express");
+const fs = require("fs");
 require("dotenv").config();
-
-
-
-const app = express();
 
 
 
 // ==========================
 // SERVIDOR RENDER
 // ==========================
+
+
+const app = express();
 
 
 app.get("/", (req,res)=>{
@@ -59,12 +58,56 @@ client.commands = new Collection();
 
 
 
+
+
 // ==========================
-// SISTEMA DE TICKETS
+// CARREGAR COMANDOS
+// ==========================
+
+
+const commandFiles = fs.readdirSync("./commands")
+.filter(file => file.endsWith(".js"));
+
+
+
+for(const file of commandFiles){
+
+
+const command = require(`./commands/${file}`);
+
+
+
+client.commands.set(
+
+command.data.name,
+
+command
+
+);
+
+
+
+console.log(
+
+`✅ Comando carregado: ${command.data.name}`
+
+);
+
+
+}
+
+
+
+
+
+// ==========================
+// SISTEMA TICKETS
 // ==========================
 
 
 const tickets = require("./systems/tickets");
+
+
 
 
 
@@ -79,6 +122,41 @@ client.on("interactionCreate", async(interaction)=>{
 
 
 try{
+
+
+
+// ==========================
+// COMANDOS SLASH
+// ==========================
+
+
+if(interaction.isChatInputCommand()){
+
+
+
+const command = client.commands.get(
+
+interaction.commandName
+
+);
+
+
+
+if(!command) return;
+
+
+
+await command.execute(interaction);
+
+
+
+return;
+
+
+}
+
+
+
 
 
 
@@ -125,6 +203,8 @@ interaction,
 
 
 
+
+
 // ==========================
 // BOTÕES
 // ==========================
@@ -134,7 +214,7 @@ if(interaction.isButton()){
 
 
 
-const cargosPermitidos = [
+const cargosPermitidos=[
 
 
 "1493905534376742974",
@@ -150,7 +230,6 @@ const cargosPermitidos = [
 
 
 
-
 const autorizado = interaction.member.roles.cache.some(
 
 role => cargosPermitidos.includes(role.id)
@@ -162,9 +241,8 @@ role => cargosPermitidos.includes(role.id)
 
 
 
-// ==========================
+
 // ASSUMIR
-// ==========================
 
 
 if(interaction.customId === "assumir"){
@@ -172,6 +250,7 @@ if(interaction.customId === "assumir"){
 
 
 if(!autorizado){
+
 
 return interaction.reply({
 
@@ -181,7 +260,9 @@ ephemeral:true
 
 });
 
+
 }
+
 
 
 
@@ -192,8 +273,8 @@ content:`🛠️ Ticket assumido por ${interaction.user}`
 });
 
 
-
 return;
+
 
 }
 
@@ -203,9 +284,8 @@ return;
 
 
 
-// ==========================
+
 // FECHAR
-// ==========================
 
 
 if(interaction.customId === "fechar"){
@@ -213,6 +293,7 @@ if(interaction.customId === "fechar"){
 
 
 if(!autorizado){
+
 
 return interaction.reply({
 
@@ -222,6 +303,7 @@ ephemeral:true
 
 });
 
+
 }
 
 
@@ -229,9 +311,10 @@ ephemeral:true
 
 await interaction.reply({
 
-content:`🔒 Ticket fechado por ${interaction.user}. Apagando canal em 5 segundos...`
+content:`🔒 Ticket fechado por ${interaction.user}. Apagando em 5 segundos...`
 
 });
+
 
 
 
@@ -247,8 +330,8 @@ interaction.channel.delete().catch(()=>{});
 
 return;
 
-}
 
+}
 
 
 
@@ -260,18 +343,21 @@ return;
 
 catch(error){
 
+
 console.error(error);
+
 
 
 if(!interaction.replied){
 
 interaction.reply({
 
-content:"❌ Ocorreu um erro.",
+content:"❌ Ocorreu um erro no sistema.",
 
 ephemeral:true
 
 }).catch(()=>{});
+
 
 }
 
@@ -281,6 +367,7 @@ ephemeral:true
 
 
 });
+
 
 
 
@@ -310,4 +397,5 @@ console.log(
 
 
 // LOGIN
+
 client.login(process.env.TOKEN);
