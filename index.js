@@ -7,8 +7,7 @@ Routes,
 EmbedBuilder,
 ActionRowBuilder,
 ButtonBuilder,
-ButtonStyle,
-StringSelectMenuBuilder
+ButtonStyle
 } = require("discord.js");
 
 
@@ -22,7 +21,6 @@ require("dotenv").config();
 // ==========================
 
 const app = express();
-
 
 app.get("/", (req,res)=>{
 
@@ -59,13 +57,12 @@ GatewayIntentBits.MessageContent
 
 client.commands = new Collection();
 
-
 const comandos = [];
 
 
 
 // ==========================
-// CARREGAR COMANDOS
+// COMANDOS
 // ==========================
 
 
@@ -108,12 +105,19 @@ console.log(
 
 
 
+
 // ==========================
 // TICKETS
 // ==========================
 
 
-const tickets = require("./systems/tickets");// ==========================
+const tickets = require("./systems/tickets");
+
+
+
+
+
+// ==========================
 // BOT ONLINE
 // ==========================
 
@@ -177,8 +181,6 @@ console.log(error);
 
 
 
-
-
 // ==========================
 // INTERAÇÕES
 // ==========================
@@ -189,11 +191,6 @@ client.on("interactionCreate", async(interaction)=>{
 
 try{
 
-
-
-// ==========================
-// COMANDOS SLASH
-// ==========================
 
 
 if(interaction.isChatInputCommand()){
@@ -224,7 +221,6 @@ return;
 
 
 
-
 // ==========================
 // MENU TICKET
 // ==========================
@@ -237,7 +233,6 @@ if(interaction.customId === "ticket_menu"){
 
 
 const escolha = interaction.values[0];
-
 
 
 if(escolha === "recrutamento"){
@@ -258,16 +253,7 @@ interaction,
 }
 
 
-}
-
-
-
-
-
-
-
-
-// ==========================
+}// ==========================
 // BOTÕES
 // ==========================
 
@@ -293,9 +279,11 @@ const cargosPermitidos=[
 
 const autorizado = interaction.member.roles.cache.some(
 
-role=>cargosPermitidos.includes(role.id)
+role => cargosPermitidos.includes(role.id)
 
 );
+
+
 
 
 
@@ -337,7 +325,6 @@ limit:10
 
 
 
-
 const mensagemTicket = mensagens.find(
 
 msg =>
@@ -347,6 +334,7 @@ msg.author.id === client.user.id &&
 msg.embeds.length > 0
 
 );
+
 
 
 
@@ -368,11 +356,12 @@ let texto = embed.data.description;
 
 
 
+
 texto = texto.replace(
 
-"👤 **Responsável:**\nNenhum recrutador assumiu.",
+"🛠️ **Responsável:**\nNenhum recrutador assumiu.",
 
-`👤 **Responsável:**\n${interaction.user}`
+`🛠️ **Responsável:**\n${interaction.user}`
 
 );
 
@@ -389,6 +378,7 @@ texto = texto.replace(
 
 
 embed.setDescription(texto);
+
 
 
 
@@ -423,7 +413,9 @@ components:[botoes]
 });
 
 
+
 }
+
 
 
 
@@ -438,9 +430,20 @@ ephemeral:true
 });
 
 
+
 return;
 
-}// ==========================
+}
+
+
+
+
+
+
+
+
+
+// ==========================
 // FECHAR TICKET
 // ==========================
 
@@ -462,6 +465,7 @@ ephemeral:true
 
 
 }
+
 
 
 
@@ -499,6 +503,7 @@ new ButtonBuilder()
 
 
 
+
 return interaction.reply({
 
 content:"🔒 Tem certeza que deseja fechar este ticket?",
@@ -519,6 +524,7 @@ ephemeral:true
 
 
 
+
 // ==========================
 // CONFIRMAR FECHAMENTO
 // ==========================
@@ -528,15 +534,46 @@ if(interaction.customId === "confirmar_fechar"){
 
 
 
+const embedFechado = new EmbedBuilder()
+
+.setColor("#E30613")
+
+.setTitle("🔒 Atendimento encerrado")
+
+.setDescription(
+
+`
+Este ticket foi encerrado por:
+
+${interaction.user}
+
+
+Obrigado pelo contato! 🔴🔵⚪
+
+
+🗑️ Este canal será apagado em **5 segundos**.
+`
+
+)
+
+.setTimestamp();
+
+
+
+
+
 await interaction.update({
 
-content:
+content:"",
 
-`🔒 Ticket fechado por ${interaction.user}. Apagando canal em 5 segundos...`,
+embeds:[embedFechado],
 
 components:[]
 
 });
+
+
+
 
 
 
@@ -598,7 +635,6 @@ console.log(error);
 
 
 });
-
 
 
 
