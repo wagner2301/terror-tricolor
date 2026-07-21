@@ -8,6 +8,7 @@ StringSelectMenuBuilder
 
 module.exports = {
 
+
 data: new SlashCommandBuilder()
 
 .setName("painel")
@@ -34,17 +35,23 @@ const embed = new EmbedBuilder()
 .setDescription(
 `Olá! Bem-vindo(a) ao sistema de tickets.
 
-Para abrir um ticket, clique no botão abaixo e informe o motivo do seu contato.
+Para abrir um ticket, clique abaixo e informe o motivo do seu contato.
 
 **Atendimento Via Ticket**
 
-Após enviar o motivo, será criado um canal de texto privado para que possamos ajudá-lo de forma segura e ágil.
+Após enviar o motivo, será criado um canal de texto privado para que nossa equipe possa ajudá-lo de forma segura e ágil.
 
-Estamos aqui para ajudar!`
+Estamos aqui para ajudar!
+
+🔴🔵⚪ Terror Tricolor`
+)
+
+.setThumbnail(
+"https://cdn.discordapp.com/attachments/1525367337023311963/1528978418555813918/LOGO_2026.png"
 )
 
 .setImage(
-"https://cdn.discordapp.com/attachments/1525367337023311963/1528978418555813918/LOGO_2026.png"
+"https://cdn.discordapp.com/attachments/1493905634360295504/1524518701116952677/ChatGPT_Image_8_07_2026_17_52_15.png"
 )
 
 .setFooter({
@@ -75,7 +82,7 @@ description:"Clique aqui para iniciar seu recrutamento",
 value:"recrutamento",
 
 emoji:{
-id:"1468410896807235831"
+id:"1209867647529783396"
 }
 
 }
