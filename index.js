@@ -1,21 +1,19 @@
-const { 
-Client, 
-GatewayIntentBits, 
-Collection, 
-EmbedBuilder 
+const {
+Client,
+GatewayIntentBits,
+Collection
 } = require("discord.js");
 
 const express = require("express");
 require("dotenv").config();
 
+
 const app = express();
 
 
-// WEB SERVICE RENDER
-
 app.get("/", (req,res)=>{
 
-res.send("🔴🔵⚪ Terror Tricolor online!");
+res.send("🔵🔴⚪ Terror Tricolor online!");
 
 });
 
@@ -27,9 +25,6 @@ console.log("🌐 Servidor web iniciado!");
 });
 
 
-
-
-// CLIENT DISCORD
 
 const client = new Client({
 
@@ -49,206 +44,72 @@ client.commands = new Collection();
 
 
 
-// SISTEMA DE TICKETS
-
 const tickets = require("./systems/tickets");
 
 
 
-
-// QUANDO BOT LIGA
+// LOGIN DO BOT
 
 client.once("ready",()=>{
 
-
 console.log(`✅ Terror Tricolor#${client.user.tag} online!`);
 
-
 });
-
-
-
-
-// INTERAÇÕES
-
-client.on("interactionCreate", async interaction => {
-
-
-
-try{
-
-
-
-// MENU DO PAINEL
-
-
-if(interaction.isStringSelectMenu()){
-
-
-
-if(interaction.customId === "abrir_ticket"){
-
-
-
-if(interaction.values[0] === "recrutamento"){
-
-
-
-await tickets.criarTicket(
-
-interaction,
-
-"RECRUTAMENTO"
-
-);
-
-
-
-}
-
-
-}
-
-
-}
-
-
 
 
 
 
 // BOTÕES
 
-
-if(interaction.isButton()){
-
+client.on("interactionCreate", async interaction=>{
 
 
-const cargosStaff = [
-
-
-"1493905534376742974",
-"1493905535492427836",
-"1528241558204317788",
-"1493905538566590524",
-"1493905541699997726",
-"1493905547626287197"
-
-
-];
+if(!interaction.isButton()) return;
 
 
 
-const pode = interaction.member.roles.cache.some(role =>
+// ABRIR RECRUTAMENTO
 
-cargosStaff.includes(role.id)
-
-);
+if(interaction.customId === "recrutamento"){
 
 
+await tickets.criarTicket(interaction);
+
+
+}
 
 
 
 
 // ASSUMIR TICKET
 
-
-if(interaction.customId === "assumir"){
-
-
-
-if(!pode){
-
-
-return interaction.reply({
-
-content:"❌ Apenas recrutadores podem assumir tickets.",
-
-ephemeral:true
-
-});
-
-
-}
+if(interaction.customId === "assumir_ticket"){
 
 
 
 await interaction.reply({
 
-content:`🛠️ ${interaction.user} assumiu este ticket.`
+content:
+
+`🛠️ Ticket assumido por ${interaction.user}`,
 
 });
 
 
-
 }
-
-
-
 
 
 
 
 // FECHAR TICKET
 
-
-if(interaction.customId === "fechar"){
-
+if(interaction.customId === "fechar_ticket"){
 
 
-if(!pode){
-
-
-return interaction.reply({
-
-content:"❌ Apenas recrutadores podem fechar tickets.",
-
-ephemeral:true
-
-});
+await tickets.fecharTicket(interaction);
 
 
 }
-
-
-
-
-await interaction.reply({
-
-content:"🔒 Ticket fechado. Este canal será apagado em 5 segundos."
-
-});
-
-
-
-setTimeout(()=>{
-
-
-interaction.channel.delete();
-
-
-},5000);
-
-
-
-}
-
-
-
-}
-
-
-
-
-
-}catch(error){
-
-
-console.log(error);
-
-
-}
-
 
 
 });
@@ -256,8 +117,30 @@ console.log(error);
 
 
 
+// COMANDO PAINEL
 
-// LOGIN
+client.on("interactionCreate", async interaction=>{
+
+
+if(!interaction.isChatInputCommand()) return;
+
+
+
+if(interaction.commandName === "painel"){
+
+
+const painel = require("./commands/painel");
+
+
+await painel.execute(interaction);
+
+
+}
+
+
+});
+
+
 
 
 client.login(process.env.TOKEN);
