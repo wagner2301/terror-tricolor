@@ -1,19 +1,24 @@
 const {
 Client,
 GatewayIntentBits,
-Collection
+Collection,
+EmbedBuilder
 } = require("discord.js");
+
 
 const express = require("express");
 require("dotenv").config();
 
 
+
 const app = express();
+
 
 
 // ==========================
 // SERVIDOR RENDER
 // ==========================
+
 
 app.get("/", (req,res)=>{
 
@@ -64,6 +69,7 @@ const tickets = require("./systems/tickets");
 
 
 
+
 // ==========================
 // INTERAÇÕES
 // ==========================
@@ -72,13 +78,17 @@ const tickets = require("./systems/tickets");
 client.on("interactionCreate", async(interaction)=>{
 
 
+try{
+
+
 
 // ==========================
-// MENU DE SELEÇÃO
+// MENU TICKET
 // ==========================
 
 
 if(interaction.isStringSelectMenu()){
+
 
 
 if(interaction.customId === "ticket_menu"){
@@ -104,11 +114,13 @@ interaction,
 }
 
 
-}
-
-
 
 }
+
+
+
+}
+
 
 
 
@@ -138,6 +150,7 @@ const cargosPermitidos = [
 
 
 
+
 const autorizado = interaction.member.roles.cache.some(
 
 role => cargosPermitidos.includes(role.id)
@@ -148,8 +161,9 @@ role => cargosPermitidos.includes(role.id)
 
 
 
+
 // ==========================
-// ASSUMIR TICKET
+// ASSUMIR
 // ==========================
 
 
@@ -159,7 +173,6 @@ if(interaction.customId === "assumir"){
 
 if(!autorizado){
 
-
 return interaction.reply({
 
 content:"❌ Você não tem permissão para assumir tickets.",
@@ -168,26 +181,30 @@ ephemeral:true
 
 });
 
-
 }
 
 
 
-return interaction.reply({
+await interaction.reply({
 
 content:`🛠️ Ticket assumido por ${interaction.user}`
 
 });
 
 
+
+return;
+
 }
 
 
 
 
 
+
+
 // ==========================
-// FECHAR TICKET
+// FECHAR
 // ==========================
 
 
@@ -197,7 +214,6 @@ if(interaction.customId === "fechar"){
 
 if(!autorizado){
 
-
 return interaction.reply({
 
 content:"❌ Você não tem permissão para fechar tickets.",
@@ -206,9 +222,7 @@ ephemeral:true
 
 });
 
-
 }
-
 
 
 
@@ -218,8 +232,6 @@ await interaction.reply({
 content:`🔒 Ticket fechado por ${interaction.user}. Apagando canal em 5 segundos...`
 
 });
-
-
 
 
 
@@ -233,16 +245,43 @@ interaction.channel.delete().catch(()=>{});
 
 
 
+return;
+
+}
+
+
+
+
 }
 
 
 
 }
 
+catch(error){
+
+console.error(error);
+
+
+if(!interaction.replied){
+
+interaction.reply({
+
+content:"❌ Ocorreu um erro.",
+
+ephemeral:true
+
+}).catch(()=>{});
+
+}
+
+
+}
 
 
 
 });
+
 
 
 
@@ -264,6 +303,7 @@ console.log(
 
 
 });
+
 
 
 
