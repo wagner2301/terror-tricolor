@@ -229,6 +229,7 @@ return;
 // MENU TICKET
 // ==========================
 
+
 if(interaction.isStringSelectMenu()){
 
 
@@ -258,6 +259,7 @@ interaction,
 
 
 }
+
 
 
 
@@ -368,9 +370,9 @@ let texto = embed.data.description;
 
 texto = texto.replace(
 
-"Nenhum recrutador assumiu.",
+"👤 **Responsável:**\nNenhum recrutador assumiu.",
 
-`${interaction.user}`
+`👤 **Responsável:**\n${interaction.user}`
 
 );
 
@@ -378,15 +380,17 @@ texto = texto.replace(
 
 texto = texto.replace(
 
-"Aguardando atendimento.",
+"🟡 **Status:**\nAguardando atendimento.",
 
-"🟢 Em atendimento."
+"🟢 **Status:**\nEm atendimento."
 
 );
 
 
 
 embed.setDescription(texto);
+
+
 
 
 
