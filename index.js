@@ -17,7 +17,6 @@ const fs = require("fs");
 require("dotenv").config();
 
 
-
 // ==========================
 // SERVIDOR RENDER
 // ==========================
@@ -40,9 +39,8 @@ console.log("🌐 Servidor web iniciado!");
 
 
 
-
 // ==========================
-// CLIENT DISCORD
+// CLIENT
 // ==========================
 
 
@@ -59,11 +57,10 @@ GatewayIntentBits.MessageContent
 });
 
 
-
 client.commands = new Collection();
 
-const comandos = [];
 
+const comandos = [];
 
 
 
@@ -74,7 +71,7 @@ const comandos = [];
 
 const commandFiles = fs.readdirSync("./commands")
 
-.filter(file => file.endsWith(".js"));
+.filter(file=>file.endsWith(".js"));
 
 
 
@@ -93,13 +90,11 @@ command
 );
 
 
-
 comandos.push(
 
 command.data.toJSON()
 
 );
-
 
 
 console.log(
@@ -113,20 +108,12 @@ console.log(
 
 
 
-
-
 // ==========================
 // TICKETS
 // ==========================
 
 
-const tickets = require("./systems/tickets");
-
-
-
-
-
-// ==========================
+const tickets = require("./systems/tickets");// ==========================
 // BOT ONLINE
 // ==========================
 
@@ -184,7 +171,15 @@ console.log(error);
 }
 
 
-}); // ==========================
+});
+
+
+
+
+
+
+
+// ==========================
 // INTERAÇÕES
 // ==========================
 
@@ -230,7 +225,6 @@ return;
 
 
 
-
 // ==========================
 // MENU TICKET
 // ==========================
@@ -248,7 +242,14 @@ const escolha = interaction.values[0];
 
 
 
+// reseta o menu primeiro
 
+await interaction.deferUpdate();
+
+
+
+
+// abre ticket
 
 if(escolha === "recrutamento"){
 
@@ -267,66 +268,13 @@ interaction,
 
 
 
-
-
-// RESETAR MENU
-
-const novoMenu = new ActionRowBuilder()
-
-.addComponents(
-
-
-new StringSelectMenuBuilder()
-
-.setCustomId("ticket_menu")
-
-.setPlaceholder("Escolha uma opção.")
-
-.addOptions([
-
-{
-
-label:"Recrutamento TUTT",
-
-description:"Clique aqui para iniciar seu recrutamento",
-
-value:"recrutamento",
-
-emoji:{
-
-id:"1209867647529783396"
-
-}
-
-}
-
-])
-
-
-)
-
-);
-
-
-
-
-
-await interaction.message.edit({
-
-components:[novoMenu]
-
-});
-
-
-
 return;
 
-}
-
-
 
 }
 
+
+}
 
 
 
@@ -359,14 +307,11 @@ const cargosPermitidos=[
 
 
 
-
 const autorizado = interaction.member.roles.cache.some(
 
-role => cargosPermitidos.includes(role.id)
+role=>cargosPermitidos.includes(role.id)
 
 );
-
-
 
 
 
@@ -423,7 +368,6 @@ msg.embeds.length > 0
 
 
 
-
 if(mensagemTicket){
 
 
@@ -460,11 +404,7 @@ texto = texto.replace(
 
 
 
-
-
 embed.setDescription(texto);
-
-
 
 
 
@@ -488,9 +428,6 @@ new ButtonBuilder()
 
 
 
-
-
-
 await mensagemTicket.edit({
 
 embeds:[embed],
@@ -500,9 +437,7 @@ components:[botoes]
 });
 
 
-
 }
-
 
 
 
@@ -517,21 +452,9 @@ ephemeral:true
 });
 
 
-
 return;
 
-
-}
-
-
-
-
-
-
-
-
-
-// ==========================
+}// ==========================
 // FECHAR TICKET
 // ==========================
 
@@ -590,10 +513,9 @@ new ButtonBuilder()
 
 
 
-
 return interaction.reply({
 
-content:"🔒 Confirmar fechamento deste ticket?",
+content:"🔒 Tem certeza que deseja fechar este ticket?",
 
 components:[botoes],
 
@@ -611,9 +533,8 @@ ephemeral:true
 
 
 
-
 // ==========================
-// CONFIRMAR FECHAR
+// CONFIRMAR FECHAMENTO
 // ==========================
 
 
@@ -625,12 +546,11 @@ await interaction.update({
 
 content:
 
-`🔒 Ticket fechado por ${interaction.user}. Apagando canal...`,
+`🔒 Ticket fechado por ${interaction.user}. Apagando canal em 5 segundos...`,
 
 components:[]
 
 });
-
 
 
 
@@ -648,7 +568,6 @@ interaction.channel.delete()
 
 return;
 
-
 }
 
 
@@ -658,9 +577,8 @@ return;
 
 
 
-
 // ==========================
-// CANCELAR FECHAR
+// CANCELAR FECHAMENTO
 // ==========================
 
 
@@ -685,17 +603,16 @@ components:[]
 
 
 
-
 }catch(error){
 
-
 console.log(error);
-
 
 }
 
 
+
 });
+
 
 
 
